@@ -1,0 +1,16 @@
+logging:
+  level:
+    root: INFO
+schedule:
+  enabled: true
+  delay: 2000
+client-services:
+  serviceList:
+    - serviceName: attachment-svc
+      port: 80
+      path: /actuator/health
+failureThreshold: 3
+
+geo-healthcheck:
+  serviceName: ${DO.SECOND_GEO_ENDPOINT_HOSTNAME}
+  port: 80
