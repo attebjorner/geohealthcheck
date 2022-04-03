@@ -1,6 +1,6 @@
 package gosha.kalosha.routing
 
-import gosha.kalosha.model.YamlProperties
+import gosha.kalosha.config.YamlProperties
 import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -10,6 +10,8 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.utils.io.*
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.koin.ktor.ext.inject
 
 fun Routing.configureHealthRouts() {
@@ -20,23 +22,16 @@ fun Routing.configureHealthRouts() {
         call.response.status(HttpStatusCode.OK)
         call.respondText("OK")
     }
-    get("test") {
-        call.respond(makeRequest())
-    }
     get("hello") {
         call.respond(mapOf("a" to "b"))
     }
     get("services") {
         call.respond(properties.clientServices)
     }
-}
-
-suspend fun makeRequest(): String {
-    val client = HttpClient(CIO)
-    val response: HttpResponse = client.get("http://attebjorner.gq/")
-    return if (response.status.isSuccess()) {
-        response.content.readUTF8Line()!!.substring(0..10)
-    } else {
-        "error"
+    get("error1") {
+        throw IllegalArgumentException("illegal argument")
+    }
+    get("error2") {
+        throw IllegalStateException("illegal state")
     }
 }

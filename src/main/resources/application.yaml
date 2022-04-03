@@ -2,15 +2,18 @@ logging:
   level:
     root: INFO
 schedule:
-  enabled: true
-  delay: 2000
+  enabled: "true"
+  delay: 10000
 client-services:
   serviceList:
-    - serviceName: attachment-svc
-      port: 80
-      path: /actuator/health
-failureThreshold: 3
+    - serviceName: "attachment-svc"
+      port: ""
+      path: "https://1mrb515ysf.api.quickmocker.com"
+    - serviceName: "attachment-svc2"
+      port: ""
+      path: "https://1mrb515ysf.api.quickmocker.com/actuator/ok"
+failureThreshold: "3"
 
 geo-healthcheck:
-  serviceName: ${DO.SECOND_GEO_ENDPOINT_HOSTNAME}
-  port: 80
+  serviceName: "geo-endpoint-host"
+  port: "80"

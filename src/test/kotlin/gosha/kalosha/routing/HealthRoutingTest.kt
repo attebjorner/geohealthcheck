@@ -1,7 +1,6 @@
 package gosha.kalosha.routing
 
-import gosha.kalosha.configureSerialization
-import gosha.kalosha.model.*
+import gosha.kalosha.config.*
 import io.ktor.http.*
 import io.ktor.application.*
 import kotlin.test.*
@@ -20,7 +19,7 @@ class HealthRoutingTest : AutoCloseKoinTest() {
     private val testService = Service("serviceName", "port", "path")
 
     private val testProperties = YamlProperties(
-        Logging(Level("INFO")),
+        Logging(Level(LoggingLevel.INFO)),
         Schedule(true, 0),
         ClientServices(listOf(testService)),
         failureThreshold = 3,

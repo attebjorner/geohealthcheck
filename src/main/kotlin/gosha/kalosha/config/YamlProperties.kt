@@ -1,4 +1,4 @@
-package gosha.kalosha.model
+package gosha.kalosha.config
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -58,10 +58,3 @@ data class GeoHealthcheck(
     @SerialName("serviceName") var serviceName: String,
     @SerialName("port") var port: String
 )
-
-fun main() {
-    val x = GeoHealthcheck::class.java.getResource("/application.yaml")
-    println(x)
-//    val input = File("src/main/resources/application.yaml").readText()
-//    val result = Yaml.default.decodeFromString(YamlProperties.serializer(), input)
-}

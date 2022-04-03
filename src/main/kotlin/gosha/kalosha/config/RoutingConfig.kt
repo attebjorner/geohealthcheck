@@ -1,6 +1,6 @@
-package gosha.kalosha.routing
+package gosha.kalosha.config
 
-import gosha.kalosha.model.YamlProperties
+import gosha.kalosha.routing.configureHealthRouts
 import io.ktor.application.*
 import io.ktor.routing.*
 
