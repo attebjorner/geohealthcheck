@@ -3,15 +3,15 @@ logging:
     root: INFO
 schedule:
   enabled: "true"
-  delay: 10000
+  delay: 1000
 client-services:
   serviceList:
-    - serviceName: "attachment-svc"
+    - serviceName: "https://yandex.ru"
       port: ""
-      path: "https://1mrb515ysf.api.quickmocker.com"
-    - serviceName: "attachment-svc2"
+      path: ""
+    - serviceName: "https://yandex.ru/abcd"
       port: ""
-      path: "https://1mrb515ysf.api.quickmocker.com/actuator/ok"
+      path: ""
 failureThreshold: "3"
 
 geo-healthcheck:

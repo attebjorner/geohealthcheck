@@ -36,14 +36,19 @@ dependencies {
 
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
+    testImplementation("io.ktor:ktor-client-mock:$ktor_version")
 
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
     testImplementation("io.insert-koin:koin-test:$koin_version")
     testImplementation("io.insert-koin:koin-test-junit4:$koin_version")
 
+    implementation("io.github.microutils:kotlin-logging:1.12.5")
+
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.hamcrest:hamcrest-all:$hamcrest_version")
+
+    testImplementation("io.mockk:mockk:1.12.0")
 }

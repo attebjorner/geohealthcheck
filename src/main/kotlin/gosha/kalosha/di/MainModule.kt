@@ -1,28 +1,21 @@
 package gosha.kalosha.di
 
 import com.charleskorn.kaml.Yaml
-import gosha.kalosha.config.YamlProperties
+import gosha.kalosha.config.AppStatus
+import gosha.kalosha.config.AppProperties
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.serialization.decodeFromString
 import org.koin.dsl.module
-import java.util.concurrent.Executors
-import kotlin.coroutines.CoroutineContext
 
-fun mainModule(coroutineContext: CoroutineContext) = module {
+fun mainModule(namespace: String) = module {
     single { yamlProperties(this@module) }
-    single { appScope(coroutineContext) }
     single { HttpClient(CIO) }
+    single { AppStatus(namespace) }
 }
 
-fun yamlProperties(classProv: Any): YamlProperties
-{
+fun yamlProperties(classProv: Any): AppProperties {
+    val yamlParser = Yaml(configuration = Yaml.default.configuration.copy(strictMode = false))
     val propertiesFile = classProv::class.java.getResource("/application.yaml")!!
-    return Yaml.default.decodeFromString(propertiesFile.readText())
+    return yamlParser.decodeFromString(propertiesFile.readText())
 }
-
-fun appScope(coroutineContext: CoroutineContext) =
-    CoroutineScope(coroutineContext)

@@ -13,6 +13,5 @@ fun Application.module() {
     configureRouting()
     configureSerialization()
     configureLogging()
-    configureStatusPages()
     scheduleJob()
 }
