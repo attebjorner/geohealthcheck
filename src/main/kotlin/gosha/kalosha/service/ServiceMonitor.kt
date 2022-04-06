@@ -1,7 +1,8 @@
 package gosha.kalosha.service
 
-import gosha.kalosha.properties.AppStatus
 import gosha.kalosha.properties.AppProperties
+import gosha.kalosha.properties.AppStatus
+import gosha.kalosha.properties.Service
 import io.ktor.client.*
 import io.ktor.client.features.*
 import io.ktor.client.request.*
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 private val logger = KotlinLogging.logger {  }
 
-object ServiceMonitor : KoinComponent {
+class ServiceMonitor : KoinComponent {
 
     private val client by inject<HttpClient>()
 
@@ -24,18 +25,9 @@ object ServiceMonitor : KoinComponent {
 
     private val services = properties.clientServices.serviceSet
 
-    private val delay = properties.schedule.delay
-
-    private val isWorking = AtomicBoolean()
-
-    suspend fun monitor() {
-        while (true) {
-            if (appStatus.isOk) {
-                val areServicesUp = areServicesUp()
-                appStatus.isOk = !appStatus.geoHealthcheckIsOk || areServicesUp
-            }
-            delay(delay)
-        }
+    suspend fun checkServices() {
+        val areServicesUp = areServicesUp()
+        appStatus.isOk.set(!appStatus.geoHealthcheckIsOk.get() || areServicesUp)
     }
 
     private suspend fun areServicesUp(): Boolean {

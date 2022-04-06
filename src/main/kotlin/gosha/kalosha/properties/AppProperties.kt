@@ -2,6 +2,7 @@ package gosha.kalosha.properties
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Serializable
 data class AppProperties(
@@ -68,6 +69,6 @@ data class GeoHealthcheck(
 
 data class AppStatus(
     val namespace: String,
-    var isOk: Boolean = true,
-    var geoHealthcheckIsOk: Boolean = true
+    var isOk: AtomicBoolean = AtomicBoolean(true),
+    var geoHealthcheckIsOk: AtomicBoolean = AtomicBoolean(true)
 )

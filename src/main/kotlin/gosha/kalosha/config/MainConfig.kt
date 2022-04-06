@@ -4,6 +4,7 @@ import gosha.kalosha.di.mainModule
 import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.routing.configureRouting
 import gosha.kalosha.service.GeoHealthcheckMonitor
+import gosha.kalosha.service.Scheduler
 import gosha.kalosha.service.ServiceMonitor
 import io.ktor.application.*
 import io.ktor.features.*
@@ -32,8 +33,8 @@ fun Application.configureSerialization() {
 }
 
 fun Application.configureDI() {
-    val namespace = environment.config.property(POD_NAMESPACE_PROPERTY).getString()
-    val backwardCompatibility = environment.config.property(BACKWARD_COMPATIBILITY_PROPERTY).getString().toBoolean()
+    val namespace = environment.config.propertyOrNull(POD_NAMESPACE_PROPERTY)?.getString() ?: ""
+    val backwardCompatibility = environment.config.propertyOrNull(BACKWARD_COMPATIBILITY_PROPERTY)?.getString().toBoolean()
 
     install(Koin) {
         SLF4JLogger()
@@ -50,14 +51,22 @@ fun Application.configureLogging() {
     }
 }
 
-fun Application.scheduleJob() {
+fun Application.scheduleJobs() {
     val properties by inject<AppProperties>()
+    val serviceMonitor by inject<ServiceMonitor>()
+    val geoHealthcheckMonitor by inject<GeoHealthcheckMonitor>()
+    val scheduler by inject<Scheduler>()
+    val delay = properties.schedule.delay
     if (properties.schedule.enabled) {
         launch {
-            ServiceMonitor.monitor()
+            scheduler.schedule(delay) {
+                serviceMonitor.checkServices()
+            }
         }
         launch {
-            GeoHealthcheckMonitor.monitor()
+            scheduler.schedule(delay) {
+                geoHealthcheckMonitor.checkGeoHealthcheckStatus()
+            }
         }
     }
 }

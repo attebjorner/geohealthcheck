@@ -14,7 +14,7 @@ fun Routing.configureRouting() {
     val appStatus by inject<AppStatus>()
 
     get("health") {
-        if (appStatus.isOk) {
+        if (appStatus.isOk.get()) {
             call.respond(
                 HttpStatusCode.OK,
                 ResponseDto(ResponseStatus.SUCCESS, HttpStatusCode.OK, appStatus.namespace)

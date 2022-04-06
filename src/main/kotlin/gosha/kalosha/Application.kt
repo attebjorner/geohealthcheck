@@ -1,7 +1,6 @@
 package gosha.kalosha
 
 import gosha.kalosha.config.*
-import gosha.kalosha.config.configureRouting
 import io.ktor.application.*
 
 fun main(args: Array<String>): Unit =
@@ -13,5 +12,17 @@ fun Application.module() {
     configureRouting()
     configureSerialization()
     configureLogging()
-    scheduleJob()
+    scheduleJobs()
+//    Runtime.getRuntime().addShutdownHook(Thread {
+//        println("SHUTTING DOWN")
+//    })
+//    for (sig in signals) {
+//        Signal.handle(Signal(sig)) {
+//            println("SIGNAL $sig")
+//        }
+//    }
+//    launch {
+//        delay(10000)
+//        exitProcess(0)
+//    }
 }

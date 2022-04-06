@@ -19,15 +19,14 @@ const val TEST_NAMESPACE = "test_namespace"
 
 class HealthRoutingTest : AutoCloseKoinTest() {
 
-    private val appStatus = spyk(AppStatus(TEST_NAMESPACE))
+    private val appStatus = AppStatus(TEST_NAMESPACE)
 
     private val testService = Service("serviceName", "port", "path")
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),
         Schedule(true, 0),
-        ClientServices(listOf(testService)),
-        failureThreshold = 3,
+        ClientServices(setOf(testService)),
         listOf(GeoHealthcheck("serviceName", "port"))
     )
 
@@ -50,7 +49,8 @@ class HealthRoutingTest : AutoCloseKoinTest() {
 
     @Test
     fun `should answer 200 to health when currentAppStatus is Ok`(): Unit = withTestApplication(applicationConfig) {
-        every { appStatus.isOk } returns true
+//        every { appStatus.isOk } returns true
+        appStatus.isOk.set(true)
         handleRequest(HttpMethod.Get, "/health").apply {
             assertThat(response.status(), equalTo(HttpStatusCode.OK))
             assertThat(response.content, equalTo("{\"status\":\"success\",\"code\":\"200\",\"namespace\":\"${TEST_NAMESPACE}\"}"))
@@ -59,7 +59,8 @@ class HealthRoutingTest : AutoCloseKoinTest() {
 
     @Test
     fun `should answer 500 to health when currentAppStatus is not Ok`(): Unit = withTestApplication(applicationConfig) {
-        every { appStatus.isOk } returns false
+//        every { appStatus.isOk } returns false
+        appStatus.isOk.set(false)
         handleRequest(HttpMethod.Get, "/health").apply {
             assertThat(response.status(), equalTo(HttpStatusCode.InternalServerError))
             assertThat(response.content, equalTo("{\"status\":\"error\",\"code\":\"500\",\"namespace\":\"${TEST_NAMESPACE}\"}"))
