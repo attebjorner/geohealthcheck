@@ -1,10 +1,14 @@
 package gosha.kalosha.config
 
 import gosha.kalosha.di.mainModule
-import gosha.kalosha.service.ServiceMonitor.monitor
+import gosha.kalosha.properties.AppProperties
+import gosha.kalosha.routing.configureRouting
+import gosha.kalosha.service.GeoHealthcheckMonitor
+import gosha.kalosha.service.ServiceMonitor
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.request.*
+import io.ktor.routing.*
 import io.ktor.serialization.*
 import kotlinx.coroutines.launch
 import org.koin.ktor.ext.Koin
@@ -13,7 +17,13 @@ import org.koin.logger.SLF4JLogger
 
 const val POD_NAMESPACE_PROPERTY = "healthcheck.pod.namespace"
 
-const val INTEROPERABILITY_PROPERTY = "healthcheck.interoperability"
+const val BACKWARD_COMPATIBILITY_PROPERTY = "healthcheck.backward-compatibility"
+
+fun Application.configureRouting() {
+    routing {
+        configureRouting()
+    }
+}
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
@@ -23,10 +33,11 @@ fun Application.configureSerialization() {
 
 fun Application.configureDI() {
     val namespace = environment.config.property(POD_NAMESPACE_PROPERTY).getString()
+    val backwardCompatibility = environment.config.property(BACKWARD_COMPATIBILITY_PROPERTY).getString().toBoolean()
 
     install(Koin) {
         SLF4JLogger()
-        modules(mainModule(namespace))
+        modules(mainModule(namespace, backwardCompatibility))
     }
 }
 
@@ -43,7 +54,10 @@ fun Application.scheduleJob() {
     val properties by inject<AppProperties>()
     if (properties.schedule.enabled) {
         launch {
-            monitor()
+            ServiceMonitor.monitor()
+        }
+        launch {
+            GeoHealthcheckMonitor.monitor()
         }
     }
 }

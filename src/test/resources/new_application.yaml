@@ -1,0 +1,25 @@
+logging:
+  level:
+    root: INFO
+schedule:
+  enabled: "true"
+  delay: 2000
+client-services:
+  service-list:
+    - service-name: "s1"
+      port: ""
+      path: ""
+      failure-threshold: 3
+      delay: 3000
+    - service-name: "s2"
+      port: ""
+      path: ""
+      failure-threshold: 2
+      delay: 2000
+
+
+geo-healthcheck-list:
+  - service-name: "geo1"
+    port: "80"
+  - service-name: geo2
+    port: 80

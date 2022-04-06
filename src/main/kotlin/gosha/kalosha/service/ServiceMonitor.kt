@@ -1,17 +1,16 @@
 package gosha.kalosha.service
 
-import gosha.kalosha.config.AppStatus
-import gosha.kalosha.config.AppProperties
+import gosha.kalosha.properties.AppStatus
+import gosha.kalosha.properties.AppProperties
 import io.ktor.client.*
 import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.http.*
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.net.URL
+import java.util.concurrent.atomic.AtomicBoolean
 
 private val logger = KotlinLogging.logger {  }
 
@@ -23,28 +22,19 @@ object ServiceMonitor : KoinComponent {
 
     private val appStatus by inject<AppStatus>()
 
-    private val services = properties.clientServices.serviceList
+    private val services = properties.clientServices.serviceSet
 
-    private val failureThreshold = properties.failureThreshold
+    private val delay = properties.schedule.delay
 
-    private val repeatMillis = properties.schedule.delay
-
-    init {
-        services.forEach { it.failureThreshold = failureThreshold }
-    }
+    private val isWorking = AtomicBoolean()
 
     suspend fun monitor() {
-        if (repeatMillis > 0) {
-            while (true) {
+        while (true) {
+            if (appStatus.isOk) {
                 val areServicesUp = areServicesUp()
-                if (!areServicesUp) {
-                    appStatus.isOk = false
-                    return
-                }
-                delay(repeatMillis)
+                appStatus.isOk = !appStatus.geoHealthcheckIsOk || areServicesUp
             }
-        } else {
-            areServicesUp()
+            delay(delay)
         }
     }
 
@@ -58,7 +48,7 @@ object ServiceMonitor : KoinComponent {
                 logger.info { "Got ${ex.response.status.value} status code" }
                 --service.failureThreshold
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                logger.error(ex.message)
             }
         }
         return services.all { it.failureThreshold != 0 }

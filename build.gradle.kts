@@ -32,7 +32,12 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:$ktor_version")
 
     implementation("io.ktor:ktor-serialization:$ktor_version")
+//    implementation("io.ktor:ktor-jackson:$ktor_version")
     implementation("com.charleskorn.kaml:kaml:$kaml_version")
+
+//    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
+//    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
+//    implementation("com.fasterxml.jackson.databind:jackson-databind:2.13.0")
 
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")

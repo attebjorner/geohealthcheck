@@ -1,6 +1,6 @@
 package gosha.kalosha.service
 
-import gosha.kalosha.config.*
+import gosha.kalosha.properties.*
 import gosha.kalosha.routing.TEST_NAMESPACE
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
@@ -25,7 +25,7 @@ internal class ServiceMonitorTest : KoinTest {
         Schedule(true, 10),
         ClientServices(listOf(testService1, testService2)),
         failureThreshold = 3,
-        GeoHealthcheck("serviceName", "port")
+        listOf(GeoHealthcheck("serviceName", "port"))
     )
 
     private val appStatus = AppStatus(TEST_NAMESPACE)

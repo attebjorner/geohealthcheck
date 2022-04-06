@@ -1,14 +1,13 @@
 package gosha.kalosha.routing
 
 import gosha.kalosha.config.*
+import gosha.kalosha.properties.*
 import io.ktor.http.*
 import io.ktor.application.*
 import kotlin.test.*
 import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.spyk
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.koin.dsl.module
@@ -29,7 +28,7 @@ class HealthRoutingTest : AutoCloseKoinTest() {
         Schedule(true, 0),
         ClientServices(listOf(testService)),
         failureThreshold = 3,
-        GeoHealthcheck("serviceName", "port")
+        listOf(GeoHealthcheck("serviceName", "port"))
     )
 
     private fun Application.configureTestDI() {
@@ -64,22 +63,6 @@ class HealthRoutingTest : AutoCloseKoinTest() {
         handleRequest(HttpMethod.Get, "/health").apply {
             assertThat(response.status(), equalTo(HttpStatusCode.InternalServerError))
             assertThat(response.content, equalTo("{\"status\":\"error\",\"code\":\"500\",\"namespace\":\"${TEST_NAMESPACE}\"}"))
-        }
-    }
-
-    @Test
-    fun `should return map to hello`(): Unit = withTestApplication(applicationConfig) {
-        handleRequest(HttpMethod.Get, "/hello").apply {
-            assertNotNull(response.content)
-            val result = Json.decodeFromString<Map<String, String>>(response.content!!)
-            assertThat(result["a"], equalTo("b"))
-        }
-    }
-
-    @Test
-    fun `should return services`(): Unit = withTestApplication(applicationConfig) {
-        handleRequest(HttpMethod.Get, "services").apply {
-            println(response.content)
         }
     }
 }
