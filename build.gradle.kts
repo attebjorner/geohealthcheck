@@ -4,11 +4,16 @@ val logback_version: String by project
 val kaml_version: String by project
 val koin_version: String by project
 val hamcrest_version: String by project
+val coroutines_version: String by project
+val kotlin_logging_version: String by project
+val mockk_version: String by project
+val junit_version: String by project
 
 plugins {
+    val kotlinVersion = "1.5.31"
     application
-    kotlin("jvm") version "1.5.31"
-    kotlin("plugin.serialization") version "1.5.31"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
 }
 
 group = "gosha.kalosha"
@@ -26,30 +31,36 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    // coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 
+    // server
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
+    testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 
+    // serialization
     implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("com.charleskorn.kaml:kaml:$kaml_version")
 
+    // client
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("io.ktor:ktor-client-mock:$ktor_version")
 
+    // DI
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
     testImplementation("io.insert-koin:koin-test:$koin_version")
     testImplementation("io.insert-koin:koin-test-junit4:$koin_version")
 
-    implementation("io.github.microutils:kotlin-logging:1.12.5")
-
+    // logging
+    implementation("io.github.microutils:kotlin-logging:$kotlin_logging_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+
+    // test
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.hamcrest:hamcrest-all:$hamcrest_version")
-
-    testImplementation("io.mockk:mockk:1.12.0")
+    implementation("org.junit.jupiter:junit-jupiter:$junit_version")
+    testImplementation("io.mockk:mockk:$mockk_version")
 }

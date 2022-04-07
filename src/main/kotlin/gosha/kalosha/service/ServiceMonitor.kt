@@ -13,9 +13,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.concurrent.atomic.AtomicBoolean
 
-private val logger = KotlinLogging.logger {  }
-
 class ServiceMonitor : KoinComponent {
+
+    private val logger = KotlinLogging.logger {  }
 
     private val client by inject<HttpClient>()
 
@@ -33,11 +33,11 @@ class ServiceMonitor : KoinComponent {
     private suspend fun areServicesUp(): Boolean {
         for (service in services) {
             try {
-                logger.info { "Sending healthcheck to ${service.serviceName}" }
+                logger.info { "Sending healthcheck to '${service.serviceName}'" }
                 val response: HttpResponse = client.get("http://${service.serviceName}:${service.port}${service.path}")
-                logger.info { "Got ${response.status.value} status code" }
+                logger.info { "Got ${response.status.value} status code from '${service.serviceName}" }
             } catch (ex: ResponseException) {
-                logger.info { "Got ${ex.response.status.value} status code" }
+                logger.info { "Got ${ex.response.status.value} status code from '${service.serviceName}" }
                 --service.failureThreshold
             } catch (ex: Exception) {
                 logger.error(ex.message)

@@ -12,17 +12,5 @@ fun Application.module() {
     configureRouting()
     configureSerialization()
     configureLogging()
-    scheduleJobs()
-//    Runtime.getRuntime().addShutdownHook(Thread {
-//        println("SHUTTING DOWN")
-//    })
-//    for (sig in signals) {
-//        Signal.handle(Signal(sig)) {
-//            println("SIGNAL $sig")
-//        }
-//    }
-//    launch {
-//        delay(10000)
-//        exitProcess(0)
-//    }
+    scheduleMonitorJobs()
 }

@@ -15,5 +15,5 @@ client-services:
 failure-threshold: "3"
 
 geo-healthcheck:
-  service-name: "yandex.ru/abcd"
+  service-name: "old_yandex.ru/abcd"
   port: "80"

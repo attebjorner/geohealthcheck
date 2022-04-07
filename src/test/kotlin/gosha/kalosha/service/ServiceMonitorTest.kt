@@ -8,8 +8,6 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest

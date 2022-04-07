@@ -10,9 +10,9 @@ import mu.KotlinLogging
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-private val logger = KotlinLogging.logger {  }
-
 class GeoHealthcheckMonitor : KoinComponent {
+
+    private val logger = KotlinLogging.logger {  }
 
     private val client by inject<HttpClient>()
 
@@ -20,20 +20,27 @@ class GeoHealthcheckMonitor : KoinComponent {
 
     private val appStatus by inject<AppStatus>()
 
-    //todo
-    private val geoHealthcheck = properties.geoHealthcheckList[0]
+    private val geoHealthchecks = properties.geoHealthcheckList
 
     suspend fun checkGeoHealthcheckStatus() {
-        try {
-            logger.info { "Sending healthcheck to GeoHealthcheck ${geoHealthcheck.serviceName}" }
-            val response: HttpResponse = client.get("http://${geoHealthcheck.serviceName}:${geoHealthcheck.port}/health")
-            logger.info { "Got ${response.status.value} status code" }
-            appStatus.geoHealthcheckIsOk.set(true)
-        } catch (ex: ResponseException) {
-            logger.info { "Got ${ex.response.status.value} status code" }
-            appStatus.geoHealthcheckIsOk.set(false)
-        } catch (ex: Exception) {
-            logger.error(ex.message)
+        val areGeoHealthchecksUp = areGeoHealthchecksUp()
+        appStatus.geoHealthcheckIsOk.set(areGeoHealthchecksUp)
+    }
+
+    private suspend fun areGeoHealthchecksUp(): Boolean {
+        for (geoHealthcheck in geoHealthchecks) {
+            try {
+                logger.info { "Sending healthcheck to GeoHealthcheck '${geoHealthcheck.serviceName}'" }
+                val response: HttpResponse = client.get("http://${geoHealthcheck.serviceName}:${geoHealthcheck.port}/health")
+                logger.info { "Got ${response.status.value} status code from GeoHealthcheck '${geoHealthcheck.serviceName}'" }
+                geoHealthcheck.isOk = true
+            } catch (ex: ResponseException) {
+                logger.info { "Got ${ex.response.status.value} status code GeoHealthcheck '${geoHealthcheck.serviceName}'" }
+                geoHealthcheck.isOk = false
+            } catch (ex: Exception) {
+                logger.error(ex.message)
+            }
         }
+        return geoHealthchecks.any { it.isOk }
     }
 }

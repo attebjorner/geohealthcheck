@@ -45,6 +45,7 @@ class HealthRoutingTest : AutoCloseKoinTest() {
         configureRouting()
         configureSerialization()
         configureTestDI()
+        configureLogging()
     }
 
     @Test

@@ -19,7 +19,7 @@ client-services:
 
 
 geo-healthcheck-list:
-  - service-name: "geo1"
+  - service-name: "new_geo1"
     port: "80"
-  - service-name: geo2
+  - service-name: new_geo2
     port: 80

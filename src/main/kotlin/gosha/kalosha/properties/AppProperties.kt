@@ -64,7 +64,8 @@ data class Service(
 data class GeoHealthcheck(
     @SerialName("service-name")
     var serviceName: String,
-    var port: String
+    var port: String,
+    var isOk: Boolean = true
 )
 
 data class AppStatus(
