@@ -4,7 +4,7 @@ import gosha.kalosha.properties.AppStatus
 import gosha.kalosha.properties.PropertiesLoader
 import gosha.kalosha.service.GeoHealthcheckMonitor
 import gosha.kalosha.service.schedule.Scheduler
-import gosha.kalosha.service.ServiceMonitor
+import gosha.kalosha.service.ClientServiceMonitor
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import org.koin.dsl.module
@@ -14,7 +14,7 @@ fun mainModule(namespace: String, backwardCompatibility: Boolean) = module {
     single { PropertiesLoader(backwardCompatibility).load() }
     single { HttpClient(CIO) }
     single { AppStatus(namespace) }
-    single { ServiceMonitor() }
+    single { ClientServiceMonitor() }
     single { GeoHealthcheckMonitor() }
     single { Scheduler }.onClose { it?.shutdownAll() }
 }

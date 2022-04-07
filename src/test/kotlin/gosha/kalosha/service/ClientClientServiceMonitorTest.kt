@@ -14,18 +14,18 @@ import org.koin.test.AutoCloseKoinTest
 import org.koin.test.KoinTestRule
 import kotlin.test.Test
 
-internal class ServiceMonitorTest : AutoCloseKoinTest() {
+internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
 
     private val failureThreshold = 3
 
-    private val testService1 = Service("servicename1", "80", "/path", failureThreshold)
+    private val testClientService1 = ClientService("servicename1", "80", "/path", failureThreshold)
 
-    private val testService2 = Service("servicename2", "80", "/path", failureThreshold)
+    private val testClientService2 = ClientService("servicename2", "80", "/path", failureThreshold)
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),
         Schedule(true, 10),
-        ClientServices(setOf(testService1, testService2)),
+        ClientServices(setOf(testClientService1, testClientService2)),
         listOf()
     )
 
@@ -35,8 +35,8 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
         engine {
             addHandler { request ->
                 when (request.url.host) {
-                    testService1.serviceName -> respond("ok", HttpStatusCode.OK)
-                    testService2.serviceName -> respond("not ok", HttpStatusCode.NotFound)
+                    testClientService1.serviceName -> respond("ok", HttpStatusCode.OK)
+                    testClientService2.serviceName -> respond("not ok", HttpStatusCode.NotFound)
                     else -> error("Unhandled ${request.url.host}")
                 }
             }
@@ -59,7 +59,7 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
         appStatus.geoHealthcheckIsOk.set(true)
         assertThat(appStatus.isOk.get(), equalTo(true))
         repeat(failureThreshold) {
-            runBlocking { ServiceMonitor().checkServices() }
+            runBlocking { ClientServiceMonitor().checkServices() }
         }
         assertThat(appStatus.isOk.get(), equalTo(false))
     }
@@ -69,7 +69,7 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
         appStatus.geoHealthcheckIsOk.set(false)
         assertThat(appStatus.isOk.get(), equalTo(true))
         repeat(failureThreshold) {
-            runBlocking { ServiceMonitor().checkServices() }
+            runBlocking { ClientServiceMonitor().checkServices() }
         }
         assertThat(appStatus.isOk.get(), equalTo(true))
     }

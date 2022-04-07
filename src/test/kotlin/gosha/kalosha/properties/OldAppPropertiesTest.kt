@@ -8,11 +8,11 @@ internal class OldAppPropertiesTest {
 
     @Test
     fun `should convert old properties to new with duplicated services`() {
-        val service = Service("s1", "80", "/")
+        val clientService = ClientService("s1", "80", "/")
         val oldProperties = OldAppProperties(
             Logging(Level(LoggingLevel.DEBUG)),
             Schedule(true, 100),
-            OldClientServices(listOf(service.copy(), service.copy())),
+            OldClientServices(listOf(clientService.copy(), clientService.copy())),
             failureThreshold = 4,
             GeoHealthcheck("geo", "80")
         )
@@ -20,11 +20,11 @@ internal class OldAppPropertiesTest {
 
         assertThat(properties.logging, equalTo(oldProperties.logging))
         assertThat(properties.schedule, equalTo(oldProperties.schedule))
-        assertThat(properties.clientServices.serviceSet.size, equalTo(1))
-        properties.clientServices.serviceSet.forEach {
-            assertThat(it.serviceName, equalTo(service.serviceName))
-            assertThat(it.port, equalTo(service.port))
-            assertThat(it.path, equalTo(service.path))
+        assertThat(properties.clientServices.clientServiceSet.size, equalTo(1))
+        properties.clientServices.clientServiceSet.forEach {
+            assertThat(it.serviceName, equalTo(clientService.serviceName))
+            assertThat(it.port, equalTo(clientService.port))
+            assertThat(it.path, equalTo(clientService.path))
             assertThat(it.delay, equalTo(oldProperties.schedule.delay))
             assertThat(it.failureThreshold, equalTo(oldProperties.failureThreshold))
         }

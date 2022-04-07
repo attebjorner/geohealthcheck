@@ -18,8 +18,8 @@ data class OldAppProperties(
     var geoHealthcheck: GeoHealthcheck
 ) {
     fun toProperties(): AppProperties {
-        val serviceSet = clientServices.serviceList.toSet()
-        if (serviceSet.size != clientServices.serviceList.size) {
+        val serviceSet = clientServices.clientServiceList.toSet()
+        if (serviceSet.size != clientServices.clientServiceList.size) {
             logger.warn { "serviceList contains duplicates" }
         }
         serviceSet.forEach {
@@ -38,6 +38,6 @@ data class OldAppProperties(
 @Serializable
 data class OldClientServices(
     @SerialName("service-list")
-    var serviceList: List<Service>
+    var clientServiceList: List<ClientService>
 )
 

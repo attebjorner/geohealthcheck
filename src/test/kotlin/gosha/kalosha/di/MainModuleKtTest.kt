@@ -4,7 +4,7 @@ import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.properties.AppStatus
 import gosha.kalosha.service.GeoHealthcheckMonitor
 import gosha.kalosha.service.schedule.Scheduler
-import gosha.kalosha.service.ServiceMonitor
+import gosha.kalosha.service.ClientServiceMonitor
 import io.ktor.client.*
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
@@ -27,7 +27,7 @@ internal class MainModuleKtTest : AutoCloseKoinTest() {
         val properties by inject<AppProperties>()
         val client by inject<HttpClient>()
         val appStatus by inject<AppStatus>()
-        val serviceMonitor by inject<ServiceMonitor>()
+        val clientServiceMonitor by inject<ClientServiceMonitor>()
         val geoHealthcheckMonitor by inject<GeoHealthcheckMonitor>()
         val scheduler by inject<Scheduler>()
 
@@ -35,7 +35,7 @@ internal class MainModuleKtTest : AutoCloseKoinTest() {
         assertThat(client, notNullValue())
         assertThat(appStatus, notNullValue())
         assertThat(appStatus.namespace, equalTo(namespace))
-        assertThat(serviceMonitor, notNullValue())
+        assertThat(clientServiceMonitor, notNullValue())
         assertThat(geoHealthcheckMonitor, notNullValue())
         assertThat(scheduler, notNullValue())
         stopKoin()

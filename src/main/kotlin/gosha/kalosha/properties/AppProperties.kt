@@ -46,27 +46,31 @@ data class Schedule(
 @Serializable
 data class ClientServices(
     @SerialName("service-list")
-    var serviceSet: Set<Service> = setOf()
+    var clientServiceSet: Set<ClientService> = setOf()
 )
 
+interface Service {
+    var serviceName: String
+}
+
 @Serializable
-data class Service(
+data class ClientService(
     @SerialName("service-name")
-    var serviceName: String,
+    override var serviceName: String,
     var port: String,
     var path: String,
     @SerialName("failure-threshold")
     var failureThreshold: Int = 0,
     var delay: Long = 0
-)
+) : Service
 
 @Serializable
 data class GeoHealthcheck(
     @SerialName("service-name")
-    var serviceName: String,
+    override var serviceName: String,
     var port: String,
     var isOk: Boolean = true
-)
+) : Service
 
 data class AppStatus(
     val namespace: String,

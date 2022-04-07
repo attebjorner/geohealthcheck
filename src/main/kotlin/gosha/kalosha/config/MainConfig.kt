@@ -5,7 +5,7 @@ import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.routing.configureRouting
 import gosha.kalosha.service.GeoHealthcheckMonitor
 import gosha.kalosha.service.schedule.Scheduler
-import gosha.kalosha.service.ServiceMonitor
+import gosha.kalosha.service.ClientServiceMonitor
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.request.*
@@ -53,14 +53,14 @@ fun Application.configureLogging() {
 
 fun Application.scheduleMonitorJobs() {
     val properties by inject<AppProperties>()
-    val serviceMonitor by inject<ServiceMonitor>()
+    val clientServiceMonitor by inject<ClientServiceMonitor>()
     val geoHealthcheckMonitor by inject<GeoHealthcheckMonitor>()
     val scheduler by inject<Scheduler>()
     val delay = properties.schedule.delay
     if (properties.schedule.enabled) {
         launch {
             scheduler.createTask("services status", delay) {
-                serviceMonitor.checkServices()
+                clientServiceMonitor.checkServices()
             }.schedule()
         }
         launch {

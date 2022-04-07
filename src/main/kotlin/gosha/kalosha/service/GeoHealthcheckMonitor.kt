@@ -2,19 +2,10 @@ package gosha.kalosha.service
 
 import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.properties.AppStatus
-import io.ktor.client.*
-import io.ktor.client.features.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import mu.KotlinLogging
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class GeoHealthcheckMonitor : KoinComponent {
-
-    private val logger = KotlinLogging.logger {  }
-
-    private val client by inject<HttpClient>()
 
     private val properties by inject<AppProperties>()
 
@@ -22,25 +13,16 @@ class GeoHealthcheckMonitor : KoinComponent {
 
     private val geoHealthchecks = properties.geoHealthcheckList
 
-    suspend fun checkGeoHealthcheckStatus() {
-        val areGeoHealthchecksUp = areGeoHealthchecksUp()
-        appStatus.geoHealthcheckIsOk.set(areGeoHealthchecksUp)
-    }
+    private val checker = ServicesChecker(
+        services = geoHealthchecks,
+        url = { geoHealthcheck -> "http://${geoHealthcheck.serviceName}:${geoHealthcheck.port}/health" },
+        onSuccess = { geoHealthcheck -> geoHealthcheck.isOk = true },
+        onError = { geoHealthcheck -> geoHealthcheck.isOk = false },
+        check = { geoHealthchecks.any { it.isOk } }
+    )
 
-    private suspend fun areGeoHealthchecksUp(): Boolean {
-        for (geoHealthcheck in geoHealthchecks) {
-            try {
-                logger.info { "Sending healthcheck to GeoHealthcheck '${geoHealthcheck.serviceName}'" }
-                val response: HttpResponse = client.get("http://${geoHealthcheck.serviceName}:${geoHealthcheck.port}/health")
-                logger.info { "Got ${response.status.value} status code from GeoHealthcheck '${geoHealthcheck.serviceName}'" }
-                geoHealthcheck.isOk = true
-            } catch (ex: ResponseException) {
-                logger.info { "Got ${ex.response.status.value} status code GeoHealthcheck '${geoHealthcheck.serviceName}'" }
-                geoHealthcheck.isOk = false
-            } catch (ex: Exception) {
-                logger.error(ex.message)
-            }
-        }
-        return geoHealthchecks.any { it.isOk }
+    suspend fun checkGeoHealthcheckStatus() {
+        val areGeoHealthchecksUp = checker.isStatusUp()
+        appStatus.geoHealthcheckIsOk.set(areGeoHealthchecksUp)
     }
 }

@@ -2,7 +2,7 @@ package gosha.kalosha.config
 
 import gosha.kalosha.properties.*
 import gosha.kalosha.service.GeoHealthcheckMonitor
-import gosha.kalosha.service.ServiceMonitor
+import gosha.kalosha.service.ClientServiceMonitor
 import gosha.kalosha.service.schedule.Scheduler
 import io.ktor.server.testing.*
 import io.mockk.*
@@ -22,7 +22,7 @@ internal class MainConfigKtTest : AutoCloseKoinTest() {
         listOf(GeoHealthcheck("serviceName", "port"))
     )
 
-    private val serviceMonitor: ServiceMonitor = mockk()
+    private val clientServiceMonitor: ClientServiceMonitor = mockk()
 
     private val geoHealthcheckMonitor: GeoHealthcheckMonitor = mockk()
 
@@ -33,7 +33,7 @@ internal class MainConfigKtTest : AutoCloseKoinTest() {
         modules(
             module {
                 single { testProperties }
-                single { serviceMonitor }
+                single { clientServiceMonitor }
                 single { geoHealthcheckMonitor }
                 single { scheduler }
             }
@@ -42,7 +42,7 @@ internal class MainConfigKtTest : AutoCloseKoinTest() {
 
     @Before
     fun setUp() {
-        coEvery { serviceMonitor.checkServices() } returns Unit
+        coEvery { clientServiceMonitor.checkServices() } returns Unit
         coEvery { geoHealthcheckMonitor.checkGeoHealthcheckStatus() } returns Unit
     }
 
@@ -50,7 +50,7 @@ internal class MainConfigKtTest : AutoCloseKoinTest() {
     fun `should schedule jobs`() = withTestApplication {
         application.scheduleMonitorJobs()
         verify(exactly = 2) { scheduler.createTask(any(), any(), any()) }
-        coVerify { serviceMonitor.checkServices() }
+        coVerify { clientServiceMonitor.checkServices() }
         coVerify { geoHealthcheckMonitor.checkGeoHealthcheckStatus() }
     }
 }

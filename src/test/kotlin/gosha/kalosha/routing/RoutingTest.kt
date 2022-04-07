@@ -6,8 +6,6 @@ import io.ktor.http.*
 import io.ktor.application.*
 import kotlin.test.*
 import io.ktor.server.testing.*
-import io.mockk.every
-import io.mockk.spyk
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.koin.dsl.module
@@ -21,12 +19,12 @@ class HealthRoutingTest : AutoCloseKoinTest() {
 
     private val appStatus = AppStatus(TEST_NAMESPACE)
 
-    private val testService = Service("serviceName", "port", "path")
+    private val testClientService = ClientService("serviceName", "port", "path")
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),
         Schedule(true, 0),
-        ClientServices(setOf(testService)),
+        ClientServices(setOf(testClientService)),
         listOf(GeoHealthcheck("serviceName", "port"))
     )
 
