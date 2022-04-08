@@ -6,6 +6,8 @@ import gosha.kalosha.service.GeoHealthcheckMonitor
 import gosha.kalosha.service.schedule.Scheduler
 import gosha.kalosha.service.ClientServiceMonitor
 import io.ktor.client.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -13,6 +15,7 @@ import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.test.AutoCloseKoinTest
+import java.util.concurrent.Executors
 import kotlin.test.Test
 
 internal class MainModuleKtTest : AutoCloseKoinTest() {

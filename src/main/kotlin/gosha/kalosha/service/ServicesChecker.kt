@@ -10,11 +10,11 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class ServicesChecker<T : Service>(
-    val services: Collection<T>,
-    val url: (T) -> String,
-    val onSuccess: (T) -> Unit = {},
-    val onError: (T) -> Unit = {},
-    val check: () -> Boolean
+    private val services: Collection<T>,
+    private val url: (T) -> String,
+    private val onSuccess: (T) -> Unit = {},
+    private val onError: (T) -> Unit = {},
+    private val check: () -> Boolean
 ) : KoinComponent {
 
     private val logger = KotlinLogging.logger {  }
@@ -31,8 +31,6 @@ class ServicesChecker<T : Service>(
             } catch (ex: ResponseException) {
                 logger.info { "Got ${ex.response.status.value} status code from '${service.serviceName}'" }
                 onError(service)
-            } catch (ex: Exception) {
-                logger.error(ex.message)
             }
         }
         return check()

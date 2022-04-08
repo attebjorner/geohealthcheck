@@ -11,8 +11,21 @@ data class AppProperties(
     @SerialName("client-services")
     var clientServices: ClientServices,
     @SerialName("geo-healthcheck-list")
-    var geoHealthcheckList: List<GeoHealthcheck> = listOf(),
-)
+    var geoHealthchecks: Collection<GeoHealthcheck> = setOf(),
+) {
+    init {
+        val clientServiceSet = clientServices.clientServices.toSet()
+        if (clientServiceSet.size != clientServices.clientServices.size) {
+            throw RuntimeException("serviceList contains duplicates")
+        }
+        clientServices.clientServices = clientServiceSet
+        val geoHealthcheckSet = geoHealthchecks.toSet()
+        if (geoHealthcheckSet.size != geoHealthchecks.size) {
+            throw RuntimeException("geoHealthcheckList contains duplicates")
+        }
+        geoHealthchecks = geoHealthcheckSet
+    }
+}
 
 @Serializable
 data class Logging(
@@ -46,7 +59,7 @@ data class Schedule(
 @Serializable
 data class ClientServices(
     @SerialName("service-list")
-    var clientServiceSet: Set<ClientService> = setOf()
+    var clientServices: Collection<ClientService> = setOf()
 )
 
 interface Service {
@@ -74,6 +87,5 @@ data class GeoHealthcheck(
 
 data class AppStatus(
     val namespace: String,
-    var isOk: AtomicBoolean = AtomicBoolean(true),
-    var geoHealthcheckIsOk: AtomicBoolean = AtomicBoolean(true)
+    val isOk: AtomicBoolean = AtomicBoolean(true)
 )

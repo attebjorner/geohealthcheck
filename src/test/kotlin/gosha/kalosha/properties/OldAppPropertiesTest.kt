@@ -12,7 +12,7 @@ internal class OldAppPropertiesTest {
         val oldProperties = OldAppProperties(
             Logging(Level(LoggingLevel.DEBUG)),
             Schedule(true, 100),
-            OldClientServices(listOf(clientService.copy(), clientService.copy())),
+            ClientServices(listOf(clientService)),
             failureThreshold = 4,
             GeoHealthcheck("geo", "80")
         )
@@ -20,15 +20,17 @@ internal class OldAppPropertiesTest {
 
         assertThat(properties.logging, equalTo(oldProperties.logging))
         assertThat(properties.schedule, equalTo(oldProperties.schedule))
-        assertThat(properties.clientServices.clientServiceSet.size, equalTo(1))
-        properties.clientServices.clientServiceSet.forEach {
+        assertThat(properties.clientServices.clientServices.size, equalTo(1))
+        properties.clientServices.clientServices.forEach {
             assertThat(it.serviceName, equalTo(clientService.serviceName))
             assertThat(it.port, equalTo(clientService.port))
             assertThat(it.path, equalTo(clientService.path))
             assertThat(it.delay, equalTo(oldProperties.schedule.delay))
             assertThat(it.failureThreshold, equalTo(oldProperties.failureThreshold))
         }
-        assertThat(properties.geoHealthcheckList.size, equalTo(1))
-        assertThat(properties.geoHealthcheckList[0], equalTo(oldProperties.geoHealthcheck))
+        assertThat(properties.geoHealthchecks.size, equalTo(1))
+        properties.geoHealthchecks.forEach {
+            assertThat(it, equalTo(oldProperties.geoHealthcheck))
+        }
     }
 }

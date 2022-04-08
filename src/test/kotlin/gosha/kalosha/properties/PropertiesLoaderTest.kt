@@ -11,7 +11,7 @@ internal class PropertiesLoaderTest {
     fun `should parse new properties when backwardCompatibility is false`() {
         val propertiesLoader = PropertiesLoader(false, "new_application.yaml")
         val properties = propertiesLoader.load()
-        properties.geoHealthcheckList.forEach {
+        properties.geoHealthchecks.forEach {
             assertThat(it.serviceName, startsWith("new"))
         }
     }
@@ -20,7 +20,7 @@ internal class PropertiesLoaderTest {
     fun `should parse old properties when backwardCompatibility is true`() {
         val propertiesLoader = PropertiesLoader(true, "old_application.yaml")
         val properties = propertiesLoader.load()
-        properties.geoHealthcheckList.forEach {
+        properties.geoHealthchecks.forEach {
             assertThat(it.serviceName, startsWith("old"))
         }
     }

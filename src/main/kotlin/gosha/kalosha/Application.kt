@@ -12,5 +12,5 @@ fun Application.module() {
     configureRouting()
     configureSerialization()
     configureLogging()
-    scheduleMonitorJobs()
+    scheduleMonitoring()
 }

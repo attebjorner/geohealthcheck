@@ -1,17 +1,20 @@
 package gosha.kalosha.service
 
 import gosha.kalosha.properties.AppProperties
-import gosha.kalosha.properties.AppStatus
+import gosha.kalosha.service.schedule.Scheduler
+import kotlinx.coroutines.flow.flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+
+const val GEOHEALTHCHECKS_TASK = "geohealthchecks status"
 
 class GeoHealthcheckMonitor : KoinComponent {
 
     private val properties by inject<AppProperties>()
 
-    private val appStatus by inject<AppStatus>()
+    private val scheduler by inject<Scheduler>()
 
-    private val geoHealthchecks = properties.geoHealthcheckList
+    private val geoHealthchecks = properties.geoHealthchecks
 
     private val checker = ServicesChecker(
         services = geoHealthchecks,
@@ -21,8 +24,9 @@ class GeoHealthcheckMonitor : KoinComponent {
         check = { geoHealthchecks.any { it.isOk } }
     )
 
-    suspend fun checkGeoHealthcheckStatus() {
-        val areGeoHealthchecksUp = checker.isStatusUp()
-        appStatus.geoHealthcheckIsOk.set(areGeoHealthchecksUp)
+    fun checkGeoHealthcheckStatus() = flow {
+        scheduler.createTask(GEOHEALTHCHECKS_TASK, properties.schedule.delay) {
+            emit(checker.isStatusUp())
+        }.schedule()
     }
 }

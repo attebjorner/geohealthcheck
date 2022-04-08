@@ -15,8 +15,5 @@ client-services:
 failure-threshold: "3"
 
 geo-healthcheck:
-  service-name: "yandex.ru"
+  service-name: "google.ru"
   port: ""
-geo-healthcheck-list:
-  - service-name: "yandex.ru"
-    port: ""

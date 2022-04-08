@@ -2,21 +2,41 @@ package gosha.kalosha.service
 
 import gosha.kalosha.properties.*
 import gosha.kalosha.routing.TEST_NAMESPACE
+import gosha.kalosha.service.schedule.Scheduler
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.skip
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Before
 import org.junit.Rule
+import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.KoinTestRule
+import kotlin.properties.Delegates
 import kotlin.test.Test
 
 internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
 
+    private val mutex = Mutex()
+
     private val failureThreshold = 3
+
+    private var numOfRequestsToWait = 0
+
+    private var numberOfRequests by Delegates.observable(0) { _, _, newValue ->
+        if (newValue == numOfRequestsToWait && mutex.isLocked) {
+            mutex.unlock()
+        }
+    }
 
     private val testClientService1 = ClientService("servicename1", "80", "/path", failureThreshold)
 
@@ -24,16 +44,17 @@ internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),
-        Schedule(true, 10),
+        Schedule(true, 1),
         ClientServices(setOf(testClientService1, testClientService2)),
         listOf()
     )
 
-    private val appStatus = AppStatus(TEST_NAMESPACE)
+    private val scheduler = Scheduler
 
     private val client = HttpClient(MockEngine) {
         engine {
             addHandler { request ->
+                ++numberOfRequests
                 when (request.url.host) {
                     testClientService1.serviceName -> respond("ok", HttpStatusCode.OK)
                     testClientService2.serviceName -> respond("not ok", HttpStatusCode.NotFound)
@@ -43,34 +64,51 @@ internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
         }
     }
 
-    @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { client }
-                single { testProperties }
-                single { appStatus }
-            }
-        )
+    private fun startKoin() {
+        org.koin.core.context.startKoin {
+            modules(
+                module {
+                    single { testProperties }
+                    single { scheduler }
+                    single { client }
+                }
+            )
+        }
+    }
+
+    @Before
+    fun setUp() {
+        numberOfRequests = 0
+        numOfRequestsToWait = failureThreshold
+        stopKoin()
     }
 
     @Test
-    fun `should set appStatus#isOk to false when any service returned not 200 #failureThreshold times and geoHealthcheck returned OK and not continue work`() {
-        appStatus.geoHealthcheckIsOk.set(true)
-        assertThat(appStatus.isOk.get(), equalTo(true))
-        repeat(failureThreshold) {
-            runBlocking { ClientServiceMonitor().checkServices() }
+    fun `should emit true when checker returns OK`() = runBlocking {
+        mutex.lock()
+        testProperties.clientServices.clientServices = listOf(testClientService1)
+        startKoin()
+        launch {
+            ClientServiceMonitor().checkServices()
+                .collectLatest { assertThat(it, equalTo(true)) }
         }
-        assertThat(appStatus.isOk.get(), equalTo(false))
+        mutex.lock()
+        scheduler.findTask(CLIENT_SERVICES_TASK).shutdown()
+        mutex.unlock()
     }
 
     @Test
-    fun `should set appStatus#isOk to true when any service returned not 200 #failureThreshold times and geoHealthcheck returned 500 and continue work`() {
-        appStatus.geoHealthcheckIsOk.set(false)
-        assertThat(appStatus.isOk.get(), equalTo(true))
-        repeat(failureThreshold) {
-            runBlocking { ClientServiceMonitor().checkServices() }
+    fun `should emit false when checker returns not OK`() = runBlocking {
+        mutex.lock()
+        testProperties.clientServices.clientServices = listOf(testClientService2)
+        startKoin()
+        launch {
+            ClientServiceMonitor().checkServices()
+                .drop(failureThreshold - 1)
+                .collectLatest { assertThat(it, equalTo(false)) }
         }
-        assertThat(appStatus.isOk.get(), equalTo(true))
+        mutex.lock()
+        scheduler.findTask(CLIENT_SERVICES_TASK).shutdown()
+        mutex.unlock()
     }
 }
