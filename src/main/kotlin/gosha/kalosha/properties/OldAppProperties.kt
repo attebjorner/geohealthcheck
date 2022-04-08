@@ -5,19 +5,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OldAppProperties(
-    var logging: Logging,
-    var schedule: Schedule,
+    val logging: Logging,
+    val schedule: Schedule,
     @SerialName("client-services")
-    var clientServices: ClientServices,
+    val clientServices: ClientServices,
     @SerialName("failure-threshold")
-    var failureThreshold: Int,
+    val failureThreshold: Int,
     @SerialName("geo-healthcheck")
-    var geoHealthcheck: GeoHealthcheck
+    val geoHealthcheck: GeoHealthcheck
 ) {
     fun toProperties(): AppProperties {
-        clientServices.clientServices.forEach {
-            it.failureThreshold = failureThreshold
-            it.delay = schedule.delay
+        clientServices.apply {
+            clientServices = clientServices.map {
+                it.copy(failureThreshold = failureThreshold, delay = schedule.delay)
+            }
         }
         return AppProperties(
             logging,

@@ -17,14 +17,14 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.inject
-import kotlin.properties.Delegates
+import kotlin.properties.Delegates.observable
 import kotlin.test.Test
 
 internal class GeoHealthcheckMonitorTest : AutoCloseKoinTest() {
 
     private val mutex = Mutex()
 
-    private var numberOfRequests by Delegates.observable(0) { _, _, newValue ->
+    private var numberOfRequests by observable(0) { _, _, newValue ->
         if (newValue == numOfRequestsToWait && mutex.isLocked) {
             mutex.unlock()
         }
@@ -45,7 +45,7 @@ internal class GeoHealthcheckMonitorTest : AutoCloseKoinTest() {
         listOf()
     )
 
-    private val scheduler = Scheduler
+    private val scheduler = Scheduler()
 
     private val geoHealthcheckMonitor by inject<GeoHealthcheckMonitor>()
 

@@ -13,7 +13,7 @@ interface Task {
     fun shutdown()
 }
 
-object Scheduler {
+class Scheduler {
 
     private val logger = KotlinLogging.logger {  }
 

@@ -10,10 +10,30 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class ServicesChecker<T : Service>(
-    private val services: Collection<T>,
+    services: Collection<T>,
     private val url: (T) -> String,
     private val onSuccess: (T) -> Unit = {},
     private val onError: (T) -> Unit = {},
+    private val check: () -> Boolean
+) : KoinComponent {
+
+    private val serviceCheckers = services.map { service ->
+        SingleServiceChecker(service, url(service), { onSuccess(service) }, { onError(service) }) { false }
+    }
+
+    suspend fun isStatusUp(): Boolean {
+        for (serviceChecker in serviceCheckers) {
+            serviceChecker.isStatusUp()
+        }
+        return check()
+    }
+}
+
+class SingleServiceChecker<T : Service>(
+    private val service: T,
+    private val url: String,
+    private val onSuccess: () -> Unit = {},
+    private val onError: () -> Unit = {},
     private val check: () -> Boolean
 ) : KoinComponent {
 
@@ -22,16 +42,14 @@ class ServicesChecker<T : Service>(
     private val client by inject<HttpClient>()
 
     suspend fun isStatusUp(): Boolean {
-        for (service in services) {
-            try {
-                logger.info { "Sending healthcheck to '${service.serviceName}'" }
-                val response: HttpResponse = client.get(url(service))
-                logger.info { "Got ${response.status.value} status code from '${service.serviceName}'" }
-                onSuccess(service)
-            } catch (ex: ResponseException) {
-                logger.info { "Got ${ex.response.status.value} status code from '${service.serviceName}'" }
-                onError(service)
-            }
+        try {
+            logger.info { "Sending healthcheck to '${service.serviceName}'" }
+            val response: HttpResponse = client.get(url)
+            logger.info { "Got ${response.status.value} status code from '${service.serviceName}'" }
+            onSuccess()
+        } catch (ex: ResponseException) {
+            logger.info { "Got ${ex.response.status.value} status code from '${service.serviceName}'" }
+            onError()
         }
         return check()
     }

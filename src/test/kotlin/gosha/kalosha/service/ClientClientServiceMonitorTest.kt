@@ -1,27 +1,22 @@
 package gosha.kalosha.service
 
 import gosha.kalosha.properties.*
-import gosha.kalosha.routing.TEST_NAMESPACE
 import gosha.kalosha.service.schedule.Scheduler
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.skip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
-import org.junit.Rule
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
-import org.koin.test.KoinTestRule
-import kotlin.properties.Delegates
+import kotlin.properties.Delegates.observable
 import kotlin.test.Test
 
 internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
@@ -32,7 +27,7 @@ internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
 
     private var numOfRequestsToWait = 0
 
-    private var numberOfRequests by Delegates.observable(0) { _, _, newValue ->
+    private var numberOfRequests by observable(0) { _, _, newValue ->
         if (newValue == numOfRequestsToWait && mutex.isLocked) {
             mutex.unlock()
         }
@@ -49,7 +44,7 @@ internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
         listOf()
     )
 
-    private val scheduler = Scheduler
+    private val scheduler = Scheduler()
 
     private val client = HttpClient(MockEngine) {
         engine {
@@ -93,7 +88,7 @@ internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
                 .collectLatest { assertThat(it, equalTo(true)) }
         }
         mutex.lock()
-        scheduler.findTask(CLIENT_SERVICES_TASK).shutdown()
+        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testClientService1.serviceName}").shutdown()
         mutex.unlock()
     }
 
@@ -108,7 +103,7 @@ internal class ClientClientServiceMonitorTest : AutoCloseKoinTest() {
                 .collectLatest { assertThat(it, equalTo(false)) }
         }
         mutex.lock()
-        scheduler.findTask(CLIENT_SERVICES_TASK).shutdown()
+        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testClientService2.serviceName}").shutdown()
         mutex.unlock()
     }
 }

@@ -42,9 +42,9 @@ internal class ServicesCheckerTest : AutoCloseKoinTest() {
 
     @Test
     fun `should execute onSuccess when service responded ok and return check`() = runBlocking {
-        val success = "success"
+        var processedService: ClientService? = null
         val check = { true }
-        val onSuccess = { service: ClientService -> service.path = success }
+        val onSuccess = { service: ClientService -> processedService = service }
 
         val servicesChecker = ServicesChecker(
             services = setOf(testClientService1),
@@ -54,14 +54,14 @@ internal class ServicesCheckerTest : AutoCloseKoinTest() {
         )
         val result = servicesChecker.isStatusUp()
         assertThat(result, equalTo(check()))
-        assertThat(testClientService1.path, equalTo(success))
+        assertThat(processedService, equalTo(testClientService1))
     }
 
     @Test
     fun `should execute onError when service responded not ok and return check`() = runBlocking {
-        val error = "error"
+        var processedService: ClientService? = null
         val check = { true }
-        val onError = { service: ClientService -> service.path = error }
+        val onError = { service: ClientService -> processedService = service }
 
         val servicesChecker = ServicesChecker(
             services = setOf(testClientService2),
@@ -71,6 +71,6 @@ internal class ServicesCheckerTest : AutoCloseKoinTest() {
         )
         val result = servicesChecker.isStatusUp()
         assertThat(result, equalTo(check()))
-        assertThat(testClientService2.path, equalTo(error))
+        assertThat(processedService, equalTo(testClientService2))
     }
 }

@@ -1,10 +1,11 @@
 package gosha.kalosha.service.schedule
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import kotlin.properties.Delegates.observable
 import kotlin.test.Test
 
 
@@ -12,36 +13,50 @@ internal class SchedulerTest {
 
     @Test
     fun `should create, execute and shutdown tasks`() = runBlocking {
-        var isTaskExecuted = false
-        val task = Scheduler.createTask("test", 1L) {
+        val mutex = Mutex(locked = true)
+        var isTaskExecuted by observable(false) { _, _, newValue ->
+            if (newValue && mutex.isLocked) {
+                mutex.unlock()
+            }
+        }
+        val task = Scheduler().createTask("test", 1L) {
             isTaskExecuted = true
         }
         assertThat(task.isActive, equalTo(false))
         launch { task.schedule() }
-        delay(1)
+        mutex.lock()
         assertThat(isTaskExecuted, equalTo(true))
         assertThat(task.isActive, equalTo(true))
         task.shutdown()
         assertThat(task.isActive, equalTo(false))
+        mutex.unlock()
     }
 
     @Test
     fun `should shutdown all tasks`() = runBlocking {
+        val mutex = Mutex(locked = true)
+        val scheduler = Scheduler()
         val numberOfTasks = 3
-        val tasks = mutableSetOf<Task>()
+        var numberOfStartedTasks by observable(0) { _, _, newValue ->
+            if (newValue == numberOfTasks && mutex.isLocked) {
+                mutex.unlock()
+            }
+        }
+        var tasks = setOf<Task>()
         repeat(numberOfTasks) {
-            val task = Scheduler.createTask("task$it", 1L) {}
-            tasks.add(task)
+            val task = scheduler.createTask("task$it", 1L) { ++numberOfStartedTasks }
+            tasks = tasks + task
             assertThat(task.isActive, equalTo(false))
             launch { task.schedule() }
         }
-        delay(1)
+        mutex.lock()
         for (task in tasks) {
             assertThat(task.isActive, equalTo(true))
         }
-        Scheduler.shutdownAll()
+        scheduler.shutdownAll()
         for (task in tasks) {
             assertThat(task.isActive, equalTo(false))
         }
+        mutex.unlock()
     }
 }

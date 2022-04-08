@@ -10,6 +10,7 @@ import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
 import kotlinx.coroutines.launch
+import org.koin.core.component.inject
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
 import org.koin.logger.SLF4JLogger
@@ -50,6 +51,10 @@ fun Application.configureLogging() {
 }
 
 fun Application.scheduleMonitoring() {
+    val properties by inject<AppProperties>()
+    if (!properties.schedule.enabled) {
+        return
+    }
     val appStatusMonitor by inject<AppStatusMonitor>()
     launch { appStatusMonitor.startMonitoring() }
 }

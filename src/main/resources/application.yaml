@@ -9,11 +9,14 @@ client-services:
     - service-name: "yandex.ru"
       port: ""
       path: ""
-    - service-name: "yandex.ru/abcd"
+      delay: 2000
+      failure-threshold: "3"
+    - service-name: "google.ru"
       port: ""
       path: ""
-failure-threshold: "3"
+      delay: 3000
+      failure-threshold: "3"
 
-geo-healthcheck:
-  service-name: "google.ru"
-  port: ""
+geo-healthcheck-list:
+  - service-name: "google.ru"
+    port: ""

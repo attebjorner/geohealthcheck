@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-const val GEOHEALTHCHECKS_TASK = "geohealthchecks status"
+const val GEOHEALTHCHECKS_TASK = "geohealthchecks_status"
 
 class GeoHealthcheckMonitor : KoinComponent {
 

@@ -2,14 +2,15 @@ package gosha.kalosha.properties
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Serializable
 data class AppProperties(
-    var logging: Logging,
-    var schedule: Schedule,
+    val logging: Logging,
+    val schedule: Schedule,
     @SerialName("client-services")
-    var clientServices: ClientServices,
+    val clientServices: ClientServices,
     @SerialName("geo-healthcheck-list")
     var geoHealthchecks: Collection<GeoHealthcheck> = setOf(),
 ) {
@@ -29,12 +30,12 @@ data class AppProperties(
 
 @Serializable
 data class Logging(
-    var level: Level
+    val level: Level
 )
 
 @Serializable
 data class Level(
-    var root: LoggingLevel
+    val root: LoggingLevel
 )
 
 @Serializable
@@ -52,8 +53,8 @@ enum class LoggingLevel {
 
 @Serializable
 data class Schedule(
-    var enabled: Boolean,
-    var delay: Long // in ms
+    val enabled: Boolean,
+    val delay: Long // in ms
 )
 
 @Serializable
@@ -63,25 +64,28 @@ data class ClientServices(
 )
 
 interface Service {
-    var serviceName: String
+    val serviceName: String
 }
 
 @Serializable
 data class ClientService(
     @SerialName("service-name")
-    override var serviceName: String,
-    var port: String,
-    var path: String,
+    override val serviceName: String,
+    val port: String,
+    val path: String,
     @SerialName("failure-threshold")
-    var failureThreshold: Int = 0,
-    var delay: Long = 0
+    val failureThreshold: Int = 0,
+    val delay: Long = 0,
+    @Transient
+    var timesFailed: Int = 0
 ) : Service
 
 @Serializable
 data class GeoHealthcheck(
     @SerialName("service-name")
-    override var serviceName: String,
-    var port: String,
+    override val serviceName: String,
+    val port: String,
+    @Transient
     var isOk: Boolean = true
 ) : Service
 
