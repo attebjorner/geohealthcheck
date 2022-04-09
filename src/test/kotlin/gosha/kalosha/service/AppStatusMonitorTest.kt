@@ -1,51 +1,31 @@
 package gosha.kalosha.service
 
-import gosha.kalosha.properties.*
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import gosha.kalosha.properties.AppStatus
+import io.mockk.*
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Rule
-import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
-import org.koin.test.KoinTestRule
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
-internal class AppStatusMonitorTest : AutoCloseKoinTest() {
+@ExtendWith(MockKExtension::class)
+internal class AppStatusMonitorTest {
 
-    private val testProperties = AppProperties(
-        Logging(Level(LoggingLevel.INFO)),
-        Schedule(true, 10),
-        ClientServices(setOf()),
-        listOf()
-    )
-
-    private val appStatus = AppStatus("test")
+    private val appStatus = spyk(AppStatus("test"))
 
     private val clientServiceMonitor: ClientServiceMonitor = mockk()
 
     private val geoHealthcheckMonitor: GeoHealthcheckMonitor = mockk()
 
-    private val appStatusMonitor = AppStatusMonitor()
+    @InjectMockKs
+    private lateinit var appStatusMonitor: AppStatusMonitor
 
     private val trueFlow get() = flow { emit(true) }
 
     private val falseFlow get() = flow { emit(false) }
-
-    @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { testProperties }
-                single { appStatus }
-                single { clientServiceMonitor }
-                single { geoHealthcheckMonitor }
-            }
-        )
-    }
 
     @Test
     fun `should set appStatus#isOk to true when geoHealthchecks not ok and services not ok`() = runBlocking {

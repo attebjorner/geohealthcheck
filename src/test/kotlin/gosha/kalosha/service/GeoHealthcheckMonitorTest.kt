@@ -11,14 +11,14 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Before
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
 import org.koin.test.inject
+import org.koin.test.junit5.AutoCloseKoinTest
 import kotlin.properties.Delegates.observable
-import kotlin.test.Test
 
 internal class GeoHealthcheckMonitorTest : AutoCloseKoinTest() {
 
@@ -70,13 +70,13 @@ internal class GeoHealthcheckMonitorTest : AutoCloseKoinTest() {
                     single { testProperties }
                     single { scheduler }
                     single { client }
-                    single { GeoHealthcheckMonitor() }
+                    single { GeoHealthcheckMonitor(get(), get(), get()) }
                 }
             )
         }
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         numberOfRequests = 0
         numOfRequestsToWait = 1

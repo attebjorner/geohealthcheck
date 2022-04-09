@@ -5,8 +5,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Test
 import kotlin.properties.Delegates.observable
-import kotlin.test.Test
 
 
 internal class SchedulerTest {
@@ -23,7 +23,7 @@ internal class SchedulerTest {
             isTaskExecuted = true
         }
         assertThat(task.isActive, equalTo(false))
-        launch { task.schedule() }
+        launch { task.start() }
         mutex.lock()
         assertThat(isTaskExecuted, equalTo(true))
         assertThat(task.isActive, equalTo(true))
@@ -47,7 +47,7 @@ internal class SchedulerTest {
             val task = scheduler.createTask("task$it", 1L) { ++numberOfStartedTasks }
             tasks = tasks + task
             assertThat(task.isActive, equalTo(false))
-            launch { task.schedule() }
+            launch { task.start() }
         }
         mutex.lock()
         for (task in tasks) {

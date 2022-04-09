@@ -1,5 +1,6 @@
 package gosha.kalosha.properties
 
+import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -15,11 +16,11 @@ data class AppProperties(
     var geoHealthchecks: Collection<GeoHealthcheck> = setOf(),
 ) {
     init {
-        val clientServiceSet = clientServices.clientServices.toSet()
-        if (clientServiceSet.size != clientServices.clientServices.size) {
+        val clientServiceSet = clientServices.services.toSet()
+        if (clientServiceSet.size != clientServices.services.size) {
             throw RuntimeException("serviceList contains duplicates")
         }
-        clientServices.clientServices = clientServiceSet
+        clientServices.services = clientServiceSet
         val geoHealthcheckSet = geoHealthchecks.toSet()
         if (geoHealthcheckSet.size != geoHealthchecks.size) {
             throw RuntimeException("geoHealthcheckList contains duplicates")
@@ -60,17 +61,13 @@ data class Schedule(
 @Serializable
 data class ClientServices(
     @SerialName("service-list")
-    var clientServices: Collection<ClientService> = setOf()
+    var services: Collection<Service> = setOf()
 )
 
-interface Service {
-    val serviceName: String
-}
-
 @Serializable
-data class ClientService(
+data class Service(
     @SerialName("service-name")
-    override val serviceName: String,
+    val serviceName: String,
     val port: String,
     val path: String,
     @SerialName("failure-threshold")
@@ -78,16 +75,32 @@ data class ClientService(
     val delay: Long = 0,
     @Transient
     var timesFailed: Int = 0
-) : Service
+) {
+    @Transient
+    val url: Url = URLBuilder(
+        protocol = URLProtocol.HTTP,
+        host = serviceName,
+        port = port.toInt(),
+        encodedPath = path
+    ).build()
+}
 
 @Serializable
 data class GeoHealthcheck(
     @SerialName("service-name")
-    override val serviceName: String,
+    val serviceName: String,
     val port: String,
     @Transient
     var isOk: Boolean = true
-) : Service
+) {
+    @Transient
+    val url: Url = URLBuilder(
+        protocol = URLProtocol.HTTP,
+        host = serviceName,
+        port = port.toInt(),
+        encodedPath = "health"
+    ).build()
+}
 
 data class AppStatus(
     val namespace: String,

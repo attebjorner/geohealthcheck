@@ -4,14 +4,14 @@ import gosha.kalosha.config.*
 import gosha.kalosha.properties.*
 import io.ktor.http.*
 import io.ktor.application.*
-import kotlin.test.*
 import io.ktor.server.testing.*
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Test
 import org.koin.dsl.module
 import org.koin.ktor.ext.Koin
 import org.koin.logger.SLF4JLogger
-import org.koin.test.AutoCloseKoinTest
+import org.koin.test.junit5.AutoCloseKoinTest
 
 const val TEST_NAMESPACE = "test_namespace"
 
@@ -19,13 +19,13 @@ class HealthRoutingTest : AutoCloseKoinTest() {
 
     private val appStatus = AppStatus(TEST_NAMESPACE)
 
-    private val testClientService = ClientService("serviceName", "port", "path")
+    private val testService = Service("serviceName", "80", "path")
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),
         Schedule(true, 0),
-        ClientServices(setOf(testClientService)),
-        listOf(GeoHealthcheck("serviceName", "port"))
+        ClientServices(setOf(testService)),
+        listOf(GeoHealthcheck("serviceName", "80"))
     )
 
     private fun Application.configureTestDI() {
@@ -48,7 +48,6 @@ class HealthRoutingTest : AutoCloseKoinTest() {
 
     @Test
     fun `should answer 200 to health when currentAppStatus is Ok`(): Unit = withTestApplication(applicationConfig) {
-//        every { appStatus.isOk } returns true
         appStatus.isOk.set(true)
         handleRequest(HttpMethod.Get, "/health").apply {
             assertThat(response.status(), equalTo(HttpStatusCode.OK))
@@ -58,7 +57,6 @@ class HealthRoutingTest : AutoCloseKoinTest() {
 
     @Test
     fun `should answer 500 to health when currentAppStatus is not Ok`(): Unit = withTestApplication(applicationConfig) {
-//        every { appStatus.isOk } returns false
         appStatus.isOk.set(false)
         handleRequest(HttpMethod.Get, "/health").apply {
             assertThat(response.status(), equalTo(HttpStatusCode.InternalServerError))

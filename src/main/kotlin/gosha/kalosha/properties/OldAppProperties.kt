@@ -16,7 +16,7 @@ data class OldAppProperties(
 ) {
     fun toProperties(): AppProperties {
         clientServices.apply {
-            clientServices = clientServices.map {
+            services = services.map {
                 it.copy(failureThreshold = failureThreshold, delay = schedule.delay)
             }
         }

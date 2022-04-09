@@ -2,7 +2,7 @@ package gosha.kalosha.properties
 
 import org.hamcrest.CoreMatchers.startsWith
 import org.hamcrest.MatcherAssert.assertThat
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertFails
 
 internal class PropertiesLoaderTest {

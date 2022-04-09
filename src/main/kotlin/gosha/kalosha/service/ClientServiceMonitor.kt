@@ -1,63 +1,62 @@
 package gosha.kalosha.service
 
 import gosha.kalosha.properties.AppProperties
-import gosha.kalosha.properties.ClientService
+import gosha.kalosha.properties.Service
 import gosha.kalosha.service.schedule.Scheduler
+import io.ktor.client.*
+import io.ktor.client.features.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.*
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import mu.KotlinLogging
 
 const val CLIENT_SERVICES_TASK = "client_services_status"
 
-class ClientServiceMonitor : KoinComponent {
+class ClientServiceMonitor(
+    properties: AppProperties,
+    private val scheduler: Scheduler,
+    private val client: HttpClient
+) {
 
-    private val properties by inject<AppProperties>()
+    private val logger = KotlinLogging.logger {  }
 
-    private val scheduler by inject<Scheduler>()
+    private val services = properties.clientServices.services
 
-    private val services = properties.clientServices.clientServices
-
-    private val checkers = services.associateWith { service ->
-        SingleServiceChecker(
-            service = service,
-            url = "http://${service.serviceName}:${service.port}${service.path}",
-            onError = { ++service.timesFailed },
-            check = { service.timesFailed != service.failureThreshold }
-        )
-    }
-
-    fun checkServices() = channelFlow {
-        val serviceStatusFlows = createFlowForEachService()
-        combine(serviceStatusFlows) { servicesStatuses ->
-            servicesStatuses.all { isUp -> isUp }
-        }.collectLatest { areServicesUp ->
-            send(areServicesUp)
+    fun checkServices(): Flow<Boolean> =
+        combineTransform(createFlowForEachService()) { servicesStatuses ->
+            val areServicesUp = servicesStatuses.all { isUp -> isUp }
+            emit(areServicesUp)
             if (!areServicesUp) {
-                removeTasks()
+                stopChecking()
             }
         }
-    }
 
-    private fun getServiceTaskName(service: ClientService) = "${CLIENT_SERVICES_TASK}_${service.serviceName}"
-
-    private fun createFlowForEachService(): Collection<Flow<Boolean>> {
-        var checkerFlows = setOf<Flow<Boolean>>()
-        for (serviceChecker in checkers) {
-            val service = serviceChecker.key
-            val checker = serviceChecker.value
-            val taskName = getServiceTaskName(service)
-            checkerFlows = checkerFlows + flow {
-                scheduler.createTask(taskName, service.delay) {
-                    emit(checker.isStatusUp())
-                }.schedule()
+    private fun createFlowForEachService(): Collection<Flow<Boolean>> =
+        services.map { service ->
+            flow {
+                scheduler.createTask(getTaskName(service), service.delay) {
+                    emit(isStatusUp(service))
+                }.start()
             }
         }
-        return checkerFlows
+
+    private suspend fun isStatusUp(service: Service): Boolean {
+        try {
+            logger.info { "Sending healthcheck to '${service.serviceName}'" }
+            val response: HttpResponse = client.get(service.url)
+            logger.info { "Got ${response.status.value} status code from '${service.serviceName}'" }
+        } catch (ex: ResponseException) {
+            logger.info { "Got ${ex.response.status.value} status code from '${service.serviceName}'" }
+            ++service.timesFailed
+        }
+        return service.timesFailed != service.failureThreshold
     }
 
-    private fun removeTasks() {
+    private fun stopChecking() {
         for (service in services) {
-            scheduler.findTask(getServiceTaskName(service)).shutdown()
+            scheduler.findTask(getTaskName(service)).shutdown()
         }
     }
+
+    private fun getTaskName(service: Service) = "${CLIENT_SERVICES_TASK}_${service.serviceName}"
 }

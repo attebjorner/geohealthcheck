@@ -1,15 +1,13 @@
 package gosha.kalosha.service.schedule
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
 interface Task {
     val isActive: Boolean
-    suspend fun schedule()
+    suspend fun start()
     fun shutdown()
 }
 
@@ -47,7 +45,7 @@ private class TaskImpl(
 
     override val isActive get() = isWorking.get()
 
-    override suspend fun schedule() {
+    override suspend fun start() {
         logger.info { "Scheduling task '$name'" }
         isWorking.set(true)
         while (isWorking.get()) {

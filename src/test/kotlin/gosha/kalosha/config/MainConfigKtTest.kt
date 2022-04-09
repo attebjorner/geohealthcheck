@@ -2,20 +2,16 @@ package gosha.kalosha.config
 
 import gosha.kalosha.properties.*
 import gosha.kalosha.service.AppStatusMonitor
-import gosha.kalosha.service.GeoHealthcheckMonitor
 import io.ktor.server.testing.*
-import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import org.junit.Before
-import org.junit.Rule
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
-import org.koin.test.KoinTestRule
-import kotlin.test.Test
+import org.koin.test.junit5.AutoCloseKoinTest
 
 internal class MainConfigKtTest : AutoCloseKoinTest() {
 
@@ -37,7 +33,7 @@ internal class MainConfigKtTest : AutoCloseKoinTest() {
         }
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         stopKoin()
     }

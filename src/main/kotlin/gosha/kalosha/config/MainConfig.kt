@@ -10,7 +10,6 @@ import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
 import kotlinx.coroutines.launch
-import org.koin.core.component.inject
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
 import org.koin.logger.SLF4JLogger
@@ -18,6 +17,8 @@ import org.koin.logger.SLF4JLogger
 private const val POD_NAMESPACE_PROPERTY = "healthcheck.pod.namespace"
 
 private const val BACKWARD_COMPATIBILITY_PROPERTY = "healthcheck.backward-compatibility"
+
+private const val CONFIG_PROPERTY = "healthcheck.config"
 
 fun Application.configureRouting() {
     routing {
@@ -34,10 +35,11 @@ fun Application.configureSerialization() {
 fun Application.configureDI() {
     val namespace = environment.config.propertyOrNull(POD_NAMESPACE_PROPERTY)?.getString() ?: ""
     val backwardCompatibility = environment.config.propertyOrNull(BACKWARD_COMPATIBILITY_PROPERTY)?.getString().toBoolean()
+    val configName = environment.config.propertyOrNull(CONFIG_PROPERTY)?.getString() ?: ""
 
     install(Koin) {
         SLF4JLogger()
-        modules(mainModule(namespace, backwardCompatibility))
+        modules(mainModule(namespace, backwardCompatibility, configName))
     }
 }
 

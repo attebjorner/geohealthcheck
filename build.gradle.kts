@@ -52,7 +52,7 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
     testImplementation("io.insert-koin:koin-test:$koin_version")
-    testImplementation("io.insert-koin:koin-test-junit4:$koin_version")
+    testImplementation("io.insert-koin:koin-test-junit5:$koin_version")
 
     // logging
     implementation("io.github.microutils:kotlin-logging:$kotlin_logging_version")
@@ -63,4 +63,8 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest-all:$hamcrest_version")
     implementation("org.junit.jupiter:junit-jupiter:$junit_version")
     testImplementation("io.mockk:mockk:$mockk_version")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

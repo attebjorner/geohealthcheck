@@ -2,21 +2,18 @@ package gosha.kalosha.di
 
 import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.properties.AppStatus
+import gosha.kalosha.service.ClientServiceMonitor
 import gosha.kalosha.service.GeoHealthcheckMonitor
 import gosha.kalosha.service.schedule.Scheduler
-import gosha.kalosha.service.ClientServiceMonitor
 import io.ktor.client.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Test
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
-import org.koin.test.AutoCloseKoinTest
-import java.util.concurrent.Executors
-import kotlin.test.Test
+import org.koin.test.junit5.AutoCloseKoinTest
 
 internal class MainModuleKtTest : AutoCloseKoinTest() {
 
@@ -24,7 +21,7 @@ internal class MainModuleKtTest : AutoCloseKoinTest() {
     fun `should load modules`() {
         val namespace = "testnamespace"
         startKoin {
-            modules(mainModule(namespace, false))
+            modules(mainModule(namespace, false, "application.yaml"))
         }
 
         val properties by inject<AppProperties>()

@@ -7,12 +7,12 @@ schedule:
 client-services:
   service-list:
     - service-name: "s1"
-      port: ""
+      port: "80"
       path: ""
       failure-threshold: 3
       delay: 3000
     - service-name: "s2"
-      port: ""
+      port: "80"
       path: ""
       failure-threshold: 2
       delay: 2000

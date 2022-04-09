@@ -7,10 +7,10 @@ schedule:
 client-services:
   service-list:
     - service-name: "yandex.ru"
-      port: ""
+      port: "80"
       path: ""
     - service-name: "yandex.ru/abcd"
-      port: ""
+      port: "80"
       path: ""
 failure-threshold: "3"
 

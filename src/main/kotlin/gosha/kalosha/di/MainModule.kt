@@ -13,13 +13,14 @@ import org.koin.dsl.onClose
 
 fun mainModule(
     namespace: String,
-    backwardCompatibility: Boolean
+    backwardCompatibility: Boolean,
+    configName: String
 ) = module {
-    single { PropertiesLoader(backwardCompatibility).load() }
+    single { PropertiesLoader(backwardCompatibility, configName).load() }
     single { HttpClient(CIO) }
     single { AppStatus(namespace) }
-    single { ClientServiceMonitor() }
-    single { GeoHealthcheckMonitor() }
+    single { ClientServiceMonitor(get(), get(), get()) }
+    single { GeoHealthcheckMonitor(get(), get(), get()) }
     single { Scheduler() }.onClose { it?.shutdownAll() }
-    single { AppStatusMonitor() }
+    single { AppStatusMonitor(get(), get(), get()) }
 }

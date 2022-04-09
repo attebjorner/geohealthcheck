@@ -1,12 +1,11 @@
 package gosha.kalosha.dto
 
 import io.ktor.http.*
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 internal class ResponseDtoTest {
 
