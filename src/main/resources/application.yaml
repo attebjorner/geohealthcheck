@@ -13,7 +13,7 @@ client-services:
       failure-threshold: "3"
     - service-name: "google.ru"
       port: "80"
-      path: ""
+      path: "abcd"
       delay: 3000
       failure-threshold: "3"
 

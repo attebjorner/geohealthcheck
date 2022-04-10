@@ -22,16 +22,6 @@ import kotlin.properties.Delegates.observable
 
 internal class GeoHealthcheckMonitorTest : AutoCloseKoinTest() {
 
-    private val mutex = Mutex()
-
-    private var numberOfRequests by observable(0) { _, _, newValue ->
-        if (newValue == numOfRequestsToWait && mutex.isLocked) {
-            mutex.unlock()
-        }
-    }
-
-    private var numOfRequestsToWait = 0
-
     private val testHealthcheck1 = GeoHealthcheck("servicename1", "80")
 
     private val testHealthcheck2 = GeoHealthcheck("servicename2", "80")
@@ -45,14 +35,11 @@ internal class GeoHealthcheckMonitorTest : AutoCloseKoinTest() {
         listOf()
     )
 
-    private val scheduler = Scheduler()
-
     private val geoHealthcheckMonitor by inject<GeoHealthcheckMonitor>()
 
     private val client = HttpClient(MockEngine) {
         engine {
             addHandler { request ->
-                ++numberOfRequests
                 when (request.url.host) {
                     testHealthcheck1.serviceName -> respond("ok", HttpStatusCode.OK)
                     testHealthcheck2.serviceName -> respond("not ok", HttpStatusCode.InternalServerError)
@@ -68,9 +55,8 @@ internal class GeoHealthcheckMonitorTest : AutoCloseKoinTest() {
             modules(
                 module {
                     single { testProperties }
-                    single { scheduler }
                     single { client }
-                    single { GeoHealthcheckMonitor(get(), get(), get()) }
+                    single { GeoHealthcheckMonitor(get(), get()) }
                 }
             )
         }
@@ -78,66 +64,34 @@ internal class GeoHealthcheckMonitorTest : AutoCloseKoinTest() {
 
     @BeforeEach
     fun setUp() {
-        numberOfRequests = 0
-        numOfRequestsToWait = 1
         stopKoin()
     }
 
     @Test
     fun `should emit true when checker returns OK`() = runBlocking {
-        mutex.lock()
         testProperties.geoHealthchecks = listOf(testHealthcheck1)
         startKoin()
-        launch {
-            geoHealthcheckMonitor.checkGeoHealthcheckStatus()
-                .collectLatest { assertThat(it, equalTo(true)) }
-        }
-        mutex.lock()
-        scheduler.findTask(GEOHEALTHCHECKS_TASK).shutdown()
-        mutex.unlock()
+        assertThat(geoHealthcheckMonitor.isStatusUp(), equalTo(true))
     }
 
     @Test
     fun `should emit false when checker returns not OK`() = runBlocking {
-        mutex.lock()
         testProperties.geoHealthchecks = listOf(testHealthcheck2)
         startKoin()
-        launch {
-            geoHealthcheckMonitor.checkGeoHealthcheckStatus()
-                .collectLatest { assertThat(it, equalTo(false)) }
-        }
-        mutex.lock()
-        scheduler.findTask(GEOHEALTHCHECKS_TASK).shutdown()
-        mutex.unlock()
+        assertThat(geoHealthcheckMonitor.isStatusUp(), equalTo(false))
     }
 
     @Test
     fun `should emit true when at least one geohealthcheck is OK`() = runBlocking {
-        mutex.lock()
         testProperties.geoHealthchecks = listOf(testHealthcheck1, testHealthcheck2, testHealthcheck3)
-        numOfRequestsToWait = testProperties.geoHealthchecks.size
         startKoin()
-        launch {
-            geoHealthcheckMonitor.checkGeoHealthcheckStatus()
-                .collectLatest { assertThat(it, equalTo(true)) }
-        }
-        mutex.lock()
-        scheduler.findTask(GEOHEALTHCHECKS_TASK).shutdown()
-        mutex.unlock()
+        assertThat(geoHealthcheckMonitor.isStatusUp(), equalTo(true))
     }
 
     @Test
     fun `should emit false when all geohealthchecks are not OK`() = runBlocking {
-        mutex.lock()
         testProperties.geoHealthchecks = listOf(testHealthcheck3, testHealthcheck2)
-        numOfRequestsToWait = testProperties.geoHealthchecks.size
         startKoin()
-        launch {
-            geoHealthcheckMonitor.checkGeoHealthcheckStatus()
-                .collectLatest { assertThat(it, equalTo(false)) }
-        }
-        mutex.lock()
-        scheduler.findTask(GEOHEALTHCHECKS_TASK).shutdown()
-        mutex.unlock()
+        assertThat(geoHealthcheckMonitor.isStatusUp(), equalTo(false))
     }
 }

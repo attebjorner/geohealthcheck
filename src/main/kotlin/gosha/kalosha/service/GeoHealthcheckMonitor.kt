@@ -6,6 +6,7 @@ import io.ktor.client.*
 import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 
@@ -13,7 +14,6 @@ const val GEOHEALTHCHECKS_TASK = "geohealthchecks_status"
 
 class GeoHealthcheckMonitor(
     properties: AppProperties,
-    private val scheduler: Scheduler,
     private val client: HttpClient
 ) {
 
@@ -23,24 +23,18 @@ class GeoHealthcheckMonitor(
 
     private val geoHealthchecks = properties.geoHealthchecks
 
-    fun checkGeoHealthcheckStatus() = flow {
-        scheduler.createTask(GEOHEALTHCHECKS_TASK, delay) {
-            emit(isStatusUp())
-        }.start()
-    }
-
-    private suspend fun isStatusUp(): Boolean {
+    suspend fun isStatusUp(): Boolean {
         for (geoHealthcheck in geoHealthchecks) {
             try {
                 logger.info { "Sending healthcheck to '${geoHealthcheck.serviceName}'" }
                 val response: HttpResponse = client.get(geoHealthcheck.url)
                 logger.info { "Got ${response.status.value} status code from '${geoHealthcheck.serviceName}'" }
-                geoHealthcheck.isOk = true
             } catch (ex: ResponseException) {
                 logger.info { "Got ${ex.response.status.value} status code from '${geoHealthcheck.serviceName}'" }
-                geoHealthcheck.isOk = false
+                ++geoHealthcheck.timesFailed
             }
+            delay(delay)
         }
-        return geoHealthchecks.any { it.isOk }
+        return geoHealthchecks.any { it.timesFailed != it.failureThreshold }
     }
 }

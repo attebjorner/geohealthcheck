@@ -71,7 +71,7 @@ data class Service(
     val port: String,
     val path: String,
     @SerialName("failure-threshold")
-    val failureThreshold: Int = 0,
+    val failureThreshold: Int = 1,
     val delay: Long = 0,
     @Transient
     var timesFailed: Int = 0
@@ -90,8 +90,9 @@ data class GeoHealthcheck(
     @SerialName("service-name")
     val serviceName: String,
     val port: String,
+    val failureThreshold: Int = 1,
     @Transient
-    var isOk: Boolean = true
+    var timesFailed: Int = 0
 ) {
     @Transient
     val url: Url = URLBuilder(
