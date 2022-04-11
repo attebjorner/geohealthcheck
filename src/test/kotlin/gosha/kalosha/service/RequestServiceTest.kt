@@ -17,17 +17,17 @@ import org.koin.test.inject
 
 internal class RequestServiceTest : AutoCloseKoinTest() {
 
-    private val testHealthcheck1 = GeoHealthcheck("servicename1", 80)
+    private val testHealthcheck1 = GeoHealthcheck(URLBuilder(host = "service1").buildString())
 
-    private val testHealthcheck2 = GeoHealthcheck("servicename2", 80)
+    private val testHealthcheck2 = GeoHealthcheck(URLBuilder(host = "service2").buildString())
 
     private val client = HttpClient(MockEngine) {
         engine {
             addHandler { request ->
-                when (request.url.host) {
-                    testHealthcheck1.serviceName -> respond("ok", HttpStatusCode.OK)
-                    testHealthcheck2.serviceName -> respond("not ok", HttpStatusCode.InternalServerError)
-                    else -> error("Unhandled ${request.url.host}")
+                when (request.url.toString()) {
+                    testHealthcheck1.endpoint -> respond("ok", HttpStatusCode.OK)
+                    testHealthcheck2.endpoint -> respond("not ok", HttpStatusCode.InternalServerError)
+                    else -> error("Unhandled ${request.url}")
                 }
             }
         }

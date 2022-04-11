@@ -6,18 +6,13 @@ schedule:
   delay: 2000
 client-services:
   service-list:
-    - service-name: yandex.ru
-      port: 80
-      path: ""
+    - endpoint: http://yandex.ru/
       delay: 2000
       failure-threshold: 3
-    - service-name: google.ru
-      port: 80
-      path: "abcd"
+    - endpoint: http://google.ru/
       delay: 3000
       failure-threshold: 3
 
 geo-healthcheck-list:
-  - service-name: google.ru
-    port: 80
+  - endpoint: http://mail.ru/
     failure-threshold: 3

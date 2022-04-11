@@ -48,24 +48,18 @@ schedule:
   delay: 2000
 client-services:
   service-list:
-    - service-name: "s1"
-      port: "80"
-      path: "/actuator/health"
+    - endpoint: "http://new_s1:80/abc"
       failure-threshold: 3
       delay: 3000
-    - service-name: "s2"
-      port: "80"
-      path: "/actuator/health"
+    - endpoint: "http://new_s2:80/abc"
       failure-threshold: 2
       delay: 2000
 
 
 geo-healthcheck-list:
-  - service-name: "geo1"
-    port: "80"
+  - endpoint: "http://new_geo1:80/abc"
     failure-threshold: 3
-  - service-name: geo2
-    port: 80
+  - endpoint: "http://new_geo1:80/abc"
     failure-threshold: 2
 ```
 

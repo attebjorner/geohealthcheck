@@ -1,6 +1,5 @@
 package gosha.kalosha.properties
 
-import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -65,50 +64,28 @@ data class ClientServices(
 )
 
 interface Service {
-    val serviceName: String
-    val url: Url
+    val endpoint: String
     var timesFailed: Int
 }
 
 @Serializable
 data class ClientService(
-    @SerialName("service-name")
-    override val serviceName: String,
-    val port: Int,
-    val path: String,
+    override val endpoint: String,
     @SerialName("failure-threshold")
     val failureThreshold: Int = 1,
     val delay: Long = 0,
     @Transient
     override var timesFailed: Int = 0
-) : Service {
-    @Transient
-    override val url: Url = URLBuilder(
-        protocol = URLProtocol.HTTP,
-        host = serviceName,
-        port = port,
-        encodedPath = path
-    ).build()
-}
+) : Service
 
 @Serializable
 data class GeoHealthcheck(
-    @SerialName("service-name")
-    override val serviceName: String,
-    val port: Int,
+    override val endpoint: String,
     @SerialName("failure-threshold")
     val failureThreshold: Int = 1,
     @Transient
     override var timesFailed: Int = 0
-) : Service {
-    @Transient
-    override val url: Url = URLBuilder(
-        protocol = URLProtocol.HTTP,
-        host = serviceName,
-        port = port,
-        encodedPath = "health"
-    ).build()
-}
+) : Service
 
 data class AppStatus(
     val namespace: String,

@@ -19,7 +19,7 @@ class HealthRoutingTest : AutoCloseKoinTest() {
 
     private val appStatus = AppStatus(TEST_NAMESPACE)
 
-    private val testService = ClientService("serviceName", 80, "path")
+    private val testService = ClientService("serviceName")
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),

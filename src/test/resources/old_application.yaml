@@ -6,10 +6,10 @@ schedule:
   delay: 2000
 client-services:
   service-list:
-    - service-name: "yandex.ru"
+    - service-name: "old_yandex.ru"
       port: "80"
       path: ""
-    - service-name: "yandex.ru/abcd"
+    - service-name: "old_yandex.ru/abcd"
       port: "80"
       path: ""
 failure-threshold: "3"

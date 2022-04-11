@@ -3,6 +3,7 @@ package gosha.kalosha.service.monitor
 import gosha.kalosha.properties.*
 import gosha.kalosha.service.RequestService
 import gosha.kalosha.service.schedule.Scheduler
+import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.collectLatest
@@ -35,9 +36,9 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
         }
     }
 
-    private val testService1 = ClientService("servicename1", 80, "/path", failureThreshold)
+    private val testService1 = ClientService(URLBuilder(host = "service1").buildString(), failureThreshold)
 
-    private val testService2 = ClientService("servicename2", 80, "/path", failureThreshold)
+    private val testService2 = ClientService(URLBuilder(host = "service2").buildString(), failureThreshold)
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),
@@ -90,7 +91,7 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
                 .collectLatest { assertThat(it, equalTo(true)) }
         }
         mutex.lock()
-        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testService1.serviceName}").shutdown()
+        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testService1.endpoint}").shutdown()
         mutex.unlock()
     }
 
@@ -105,7 +106,7 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
                 .collectLatest { assertThat(it, equalTo(false)) }
         }
         mutex.lock()
-        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testService2.serviceName}").shutdown()
+        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testService2.endpoint}").shutdown()
         mutex.unlock()
     }
 }

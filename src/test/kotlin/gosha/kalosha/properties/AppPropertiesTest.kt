@@ -20,7 +20,7 @@ internal class AppPropertiesTest {
         assertThrows<RuntimeException> { AppProperties(
             Logging(Level(LoggingLevel.DEBUG)),
             Schedule(true, 100),
-            ClientServices(listOf(ClientService("s1", 80, "/"), ClientService("s1", 80, "/"))),
+            ClientServices(listOf(ClientService("s1", 80), ClientService("s1", 80))),
             listOf(GeoHealthcheck("geo", 80))
         ) }
     }
@@ -30,7 +30,7 @@ internal class AppPropertiesTest {
         assertThrows<RuntimeException> { AppProperties(
             Logging(Level(LoggingLevel.DEBUG)),
             Schedule(true, 100),
-            ClientServices(listOf(ClientService("s1", 80, "/"))),
+            ClientServices(listOf(ClientService("s1", 80))),
             listOf(GeoHealthcheck("geo", 80), GeoHealthcheck("geo", 80))
         ) }
     }

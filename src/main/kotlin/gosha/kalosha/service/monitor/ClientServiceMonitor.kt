@@ -47,5 +47,5 @@ class ClientServiceMonitor(
         }
     }
 
-    private fun getTaskName(service: ClientService) = "${CLIENT_SERVICES_TASK}_${service.serviceName}"
+    private fun getTaskName(service: ClientService) = "${CLIENT_SERVICES_TASK}_${service.endpoint}"
 }
