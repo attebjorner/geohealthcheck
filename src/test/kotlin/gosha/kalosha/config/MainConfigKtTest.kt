@@ -1,7 +1,7 @@
 package gosha.kalosha.config
 
 import gosha.kalosha.properties.*
-import gosha.kalosha.service.AppStatusMonitor
+import gosha.kalosha.service.monitor.AppStatusMonitor
 import io.ktor.server.testing.*
 import io.mockk.coEvery
 import io.mockk.coVerify

@@ -1,4 +1,4 @@
-package gosha.kalosha.service
+package gosha.kalosha.service.monitor
 
 import gosha.kalosha.properties.AppStatus
 import io.mockk.*
@@ -30,30 +30,30 @@ internal class AppStatusMonitorTest {
     @Test
     fun `should set appStatus#isOk to true when geoHealthchecks not ok and services not ok`() = runBlocking {
         every { clientServiceMonitor.checkServices() } returns falseFlow
-        coEvery { geoHealthcheckMonitor.isStatusUp() } returns false
+        coEvery { geoHealthcheckMonitor.areGeoHealthchecksUp() } returns false
         appStatusMonitor.startMonitoring()
         verify { clientServiceMonitor.checkServices() }
-        coVerify { geoHealthcheckMonitor.isStatusUp() }
+        coVerify { geoHealthcheckMonitor.areGeoHealthchecksUp() }
         assertThat(appStatus.isOk.get(), equalTo(true))
     }
 
     @Test
     fun `should set appStatus#isOk to false when geoHealthchecks ok and services not ok`() = runBlocking {
         every { clientServiceMonitor.checkServices() } returns falseFlow
-        coEvery { geoHealthcheckMonitor.isStatusUp() } returns true
+        coEvery { geoHealthcheckMonitor.areGeoHealthchecksUp() } returns true
         appStatusMonitor.startMonitoring()
         verify { clientServiceMonitor.checkServices() }
-        coVerify { geoHealthcheckMonitor.isStatusUp() }
+        coVerify { geoHealthcheckMonitor.areGeoHealthchecksUp() }
         assertThat(appStatus.isOk.get(), equalTo(false))
     }
 
     @Test
     fun `should not call geohealthcheck when services ok`() = runBlocking {
         every { clientServiceMonitor.checkServices() } returns trueFlow
-        coEvery { geoHealthcheckMonitor.isStatusUp() } returns false
+        coEvery { geoHealthcheckMonitor.areGeoHealthchecksUp() } returns false
         appStatusMonitor.startMonitoring()
         verify { clientServiceMonitor.checkServices() }
-        coVerify(exactly = 0) { geoHealthcheckMonitor.isStatusUp() }
+        coVerify(exactly = 0) { geoHealthcheckMonitor.areGeoHealthchecksUp() }
         assertThat(appStatus.isOk.get(), equalTo(true))
     }
 }

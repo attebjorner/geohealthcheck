@@ -61,26 +61,32 @@ data class Schedule(
 @Serializable
 data class ClientServices(
     @SerialName("service-list")
-    var services: Collection<Service> = setOf()
+    var services: Collection<ClientService> = setOf()
 )
 
+interface Service {
+    val serviceName: String
+    val url: Url
+    var timesFailed: Int
+}
+
 @Serializable
-data class Service(
+data class ClientService(
     @SerialName("service-name")
-    val serviceName: String,
-    val port: String,
+    override val serviceName: String,
+    val port: Int,
     val path: String,
     @SerialName("failure-threshold")
     val failureThreshold: Int = 1,
     val delay: Long = 0,
     @Transient
-    var timesFailed: Int = 0
-) {
+    override var timesFailed: Int = 0
+) : Service {
     @Transient
-    val url: Url = URLBuilder(
+    override val url: Url = URLBuilder(
         protocol = URLProtocol.HTTP,
         host = serviceName,
-        port = port.toInt(),
+        port = port,
         encodedPath = path
     ).build()
 }
@@ -88,17 +94,18 @@ data class Service(
 @Serializable
 data class GeoHealthcheck(
     @SerialName("service-name")
-    val serviceName: String,
-    val port: String,
+    override val serviceName: String,
+    val port: Int,
+    @SerialName("failure-threshold")
     val failureThreshold: Int = 1,
     @Transient
-    var timesFailed: Int = 0
-) {
+    override var timesFailed: Int = 0
+) : Service {
     @Transient
-    val url: Url = URLBuilder(
+    override val url: Url = URLBuilder(
         protocol = URLProtocol.HTTP,
         host = serviceName,
-        port = port.toInt(),
+        port = port,
         encodedPath = "health"
     ).build()
 }

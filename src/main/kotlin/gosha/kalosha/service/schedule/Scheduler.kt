@@ -18,13 +18,16 @@ class Scheduler {
     private val tasks = ConcurrentHashMap<String, Task>()
 
     fun createTask(name: String, delay: Long, block: suspend () -> Unit): Task {
+        if (tasks.contains(name)) {
+            throw RuntimeException("Task with name $name already exists")
+        }
         val task = TaskImpl(name, delay, block)
         tasks[name] = task
         return task
     }
 
     fun shutdownAll() {
-        logger.info { "Shutting down all tasks" }
+        logger.debug { "Shutting down all tasks" }
         for (task in tasks.values) {
             task.shutdown()
         }
@@ -46,7 +49,7 @@ private class TaskImpl(
     override val isActive get() = isWorking.get()
 
     override suspend fun start() {
-        logger.info { "Scheduling task '$name'" }
+        logger.debug { "Scheduling task '$name'" }
         isWorking.set(true)
         while (isWorking.get()) {
             block()
@@ -55,7 +58,7 @@ private class TaskImpl(
     }
 
     override fun shutdown() {
-        logger.info { "Shutting down task '$name'" }
+        logger.debug { "Shutting down task '$name'" }
         isWorking.set(false)
     }
 }

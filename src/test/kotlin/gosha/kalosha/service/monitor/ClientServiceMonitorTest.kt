@@ -1,10 +1,10 @@
-package gosha.kalosha.service
+package gosha.kalosha.service.monitor
 
 import gosha.kalosha.properties.*
+import gosha.kalosha.service.RequestService
 import gosha.kalosha.service.schedule.Scheduler
-import io.ktor.client.*
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -15,6 +15,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.component.inject
+import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.junit5.AutoCloseKoinTest
@@ -34,9 +35,9 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
         }
     }
 
-    private val testService1 = Service("servicename1", "80", "/path", failureThreshold)
+    private val testService1 = ClientService("servicename1", 80, "/path", failureThreshold)
 
-    private val testService2 = Service("servicename2", "80", "/path", failureThreshold)
+    private val testService2 = ClientService("servicename2", 80, "/path", failureThreshold)
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),
@@ -47,28 +48,17 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
 
     private val scheduler = Scheduler()
 
+    private val requestService: RequestService = mockk()
+
     private val clientServiceMonitor by inject<ClientServiceMonitor>()
 
-    private val client = HttpClient(MockEngine) {
-        engine {
-            addHandler { request ->
-                ++numberOfRequests
-                when (request.url.host) {
-                    testService1.serviceName -> respond("ok", HttpStatusCode.OK)
-                    testService2.serviceName -> respond("not ok", HttpStatusCode.NotFound)
-                    else -> error("Unhandled ${request.url.host}")
-                }
-            }
-        }
-    }
-
     private fun startKoin() {
-        org.koin.core.context.startKoin {
+        startKoin {
             modules(
                 module {
                     single { testProperties }
                     single { scheduler }
-                    single { client }
+                    single { requestService }
                     single { ClientServiceMonitor(get(), get(), get()) }
                 }
             )
@@ -77,6 +67,14 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
 
     @BeforeEach
     fun setUp() {
+        coEvery { requestService.isStatusUp(testService1) } answers {
+            ++numberOfRequests
+            true
+        }
+        coEvery { requestService.isStatusUp(testService2) } answers {
+            ++numberOfRequests
+            false
+        }
         numberOfRequests = 0
         numOfRequestsToWait = failureThreshold
         stopKoin()

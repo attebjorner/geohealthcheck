@@ -2,8 +2,8 @@ package gosha.kalosha.di
 
 import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.properties.AppStatus
-import gosha.kalosha.service.ClientServiceMonitor
-import gosha.kalosha.service.GeoHealthcheckMonitor
+import gosha.kalosha.service.monitor.ClientServiceMonitor
+import gosha.kalosha.service.monitor.GeoHealthcheckMonitor
 import gosha.kalosha.service.schedule.Scheduler
 import io.ktor.client.*
 import org.hamcrest.CoreMatchers.equalTo

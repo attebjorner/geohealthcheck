@@ -3,7 +3,7 @@ package gosha.kalosha.config
 import gosha.kalosha.di.mainModule
 import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.routing.configureRouting
-import gosha.kalosha.service.AppStatusMonitor
+import gosha.kalosha.service.monitor.AppStatusMonitor
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.request.*

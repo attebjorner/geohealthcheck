@@ -2,21 +2,22 @@ logging:
   level:
     root: INFO
 schedule:
-  enabled: "true"
+  enabled: true
   delay: 2000
 client-services:
   service-list:
-    - service-name: "yandex.ru"
-      port: "80"
+    - service-name: yandex.ru
+      port: 80
       path: ""
       delay: 2000
-      failure-threshold: "3"
-    - service-name: "google.ru"
-      port: "80"
+      failure-threshold: 3
+    - service-name: google.ru
+      port: 80
       path: "abcd"
       delay: 3000
-      failure-threshold: "3"
+      failure-threshold: 3
 
 geo-healthcheck-list:
-  - service-name: "google.ru"
-    port: "80"
+  - service-name: google.ru
+    port: 80
+    failure-threshold: 3

@@ -8,13 +8,13 @@ internal class OldAppPropertiesTest {
 
     @Test
     fun `should convert old properties to new with duplicated services`() {
-        val service = Service("s1", "80", "/")
+        val service = ClientService("s1", 80, "/")
         val oldProperties = OldAppProperties(
             Logging(Level(LoggingLevel.DEBUG)),
             Schedule(true, 100),
             ClientServices(listOf(service)),
             failureThreshold = 4,
-            GeoHealthcheck("geo", "80")
+            GeoHealthcheck("geo", 80)
         )
         val properties = oldProperties.toProperties()
 
