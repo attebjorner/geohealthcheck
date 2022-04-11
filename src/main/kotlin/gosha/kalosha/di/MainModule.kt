@@ -22,7 +22,7 @@ fun mainModule(
     single { AppStatus(namespace) }
     single { RequestService(get()) }
     single { ClientServiceMonitor(get(), get(), get()) }
-    single { GeoHealthcheckMonitor(get(), get()) }
+    single { GeoHealthcheckMonitor(get(), get(), get()) }
     single { Scheduler() }.onClose { it?.shutdownAll() }
     single { AppStatusMonitor(get(), get(), get()) }
 }

@@ -68,13 +68,8 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
 
     @BeforeEach
     fun setUp() {
-        coEvery { requestService.isStatusUp(testService1) } answers {
+        coEvery { requestService.updateStatus(any()) } answers {
             ++numberOfRequests
-            true
-        }
-        coEvery { requestService.isStatusUp(testService2) } answers {
-            ++numberOfRequests
-            false
         }
         numberOfRequests = 0
         numOfRequestsToWait = failureThreshold
@@ -102,7 +97,7 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
         startKoin()
         launch {
             clientServiceMonitor.checkServices()
-                .drop(failureThreshold - 1)
+                .drop(failureThreshold)
                 .collectLatest { assertThat(it, equalTo(false)) }
         }
         mutex.lock()

@@ -30,30 +30,40 @@ internal class AppStatusMonitorTest {
     @Test
     fun `should set appStatus#isOk to true when geoHealthchecks not ok and services not ok`() = runBlocking {
         every { clientServiceMonitor.checkServices() } returns falseFlow
-        coEvery { geoHealthcheckMonitor.areGeoHealthchecksUp() } returns false
+        every { geoHealthcheckMonitor.checkGeoHealthcheckStatus() } returns falseFlow
         appStatusMonitor.startMonitoring()
         verify { clientServiceMonitor.checkServices() }
-        coVerify { geoHealthcheckMonitor.areGeoHealthchecksUp() }
+        verify { geoHealthcheckMonitor.checkGeoHealthcheckStatus() }
         assertThat(appStatus.isOk.get(), equalTo(true))
     }
 
     @Test
     fun `should set appStatus#isOk to false when geoHealthchecks ok and services not ok`() = runBlocking {
         every { clientServiceMonitor.checkServices() } returns falseFlow
-        coEvery { geoHealthcheckMonitor.areGeoHealthchecksUp() } returns true
+        every { geoHealthcheckMonitor.checkGeoHealthcheckStatus() } returns trueFlow
         appStatusMonitor.startMonitoring()
         verify { clientServiceMonitor.checkServices() }
-        coVerify { geoHealthcheckMonitor.areGeoHealthchecksUp() }
+        verify { geoHealthcheckMonitor.checkGeoHealthcheckStatus() }
         assertThat(appStatus.isOk.get(), equalTo(false))
     }
 
     @Test
-    fun `should not call geohealthcheck when services ok`() = runBlocking {
+    fun `should set appStatus#isOk to true when geoHealthchecks not ok and services ok`() = runBlocking {
         every { clientServiceMonitor.checkServices() } returns trueFlow
-        coEvery { geoHealthcheckMonitor.areGeoHealthchecksUp() } returns false
+        every { geoHealthcheckMonitor.checkGeoHealthcheckStatus() } returns falseFlow
         appStatusMonitor.startMonitoring()
         verify { clientServiceMonitor.checkServices() }
-        coVerify(exactly = 0) { geoHealthcheckMonitor.areGeoHealthchecksUp() }
+        verify { geoHealthcheckMonitor.checkGeoHealthcheckStatus() }
+        assertThat(appStatus.isOk.get(), equalTo(true))
+    }
+
+    @Test
+    fun `should set appStatus#isOk to true when geoHealthchecks ok and services ok`() = runBlocking {
+        every { clientServiceMonitor.checkServices() } returns trueFlow
+        every { geoHealthcheckMonitor.checkGeoHealthcheckStatus() } returns trueFlow
+        appStatusMonitor.startMonitoring()
+        verify { clientServiceMonitor.checkServices() }
+        verify { geoHealthcheckMonitor.checkGeoHealthcheckStatus() }
         assertThat(appStatus.isOk.get(), equalTo(true))
     }
 }

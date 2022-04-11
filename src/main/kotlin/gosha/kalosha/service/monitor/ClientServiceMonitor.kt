@@ -18,11 +18,7 @@ class ClientServiceMonitor(
 
     fun checkServices(): Flow<Boolean> =
         combineTransform(createFlowForEachService()) { servicesStatuses ->
-            val areServicesUp = servicesStatuses.all { isUp -> isUp }
-            emit(areServicesUp)
-            if (!areServicesUp) {
-                stopChecking()
-            }
+            emit(servicesStatuses.all { isUp -> isUp })
         }
 
     private fun createFlowForEachService(): Collection<Flow<Boolean>> =
@@ -35,16 +31,8 @@ class ClientServiceMonitor(
         }
 
     private suspend fun isStatusUp(service: ClientService): Boolean {
-        if (!requestService.isStatusUp(service)) {
-            ++service.timesFailed
-        }
-        return service.timesFailed != service.failureThreshold
-    }
-
-    private fun stopChecking() {
-        for (service in services) {
-            scheduler.findTask(getTaskName(service)).shutdown()
-        }
+        requestService.updateStatus(service)
+        return service.timesFailed < service.failureThreshold
     }
 
     private fun getTaskName(service: ClientService) = "${CLIENT_SERVICES_TASK}_${service.endpoint}"

@@ -12,7 +12,15 @@ class RequestService(
 ) {
     private val logger = KotlinLogging.logger {  }
 
-    suspend fun isStatusUp(service: Service): Boolean {
+    suspend fun updateStatus(service: Service) {
+        if (!isStatusUp(service)) {
+            ++service.timesFailed
+        } else if (service.timesFailed >= service.failureThreshold) {
+            service.timesFailed = 0
+        }
+    }
+
+    private suspend fun isStatusUp(service: Service): Boolean {
         return try {
             logger.info { "Sending healthcheck to '${service.endpoint}'" }
             val response: HttpResponse = client.get(service.endpoint)

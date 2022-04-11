@@ -53,12 +53,16 @@ internal class RequestServiceTest : AutoCloseKoinTest() {
     }
 
     @Test
-    fun `should return true when service returned 200`() = runBlocking {
-        assertThat(requestService.isStatusUp(testHealthcheck1), equalTo(true))
+    fun `should increase timesFailed when returned not 200`() = runBlocking {
+        val timesFailed = testHealthcheck2.timesFailed
+        requestService.updateStatus(testHealthcheck2)
+        assertThat(testHealthcheck2.timesFailed, equalTo(timesFailed + 1))
     }
 
     @Test
-    fun `should return false when service returned not 200`() = runBlocking {
-        assertThat(requestService.isStatusUp(testHealthcheck2), equalTo(false))
+    fun `should reset timesFailed when returned true after fail`() = runBlocking {
+        testHealthcheck1.timesFailed = testHealthcheck1.failureThreshold + 1
+        requestService.updateStatus(testHealthcheck1)
+        assertThat(testHealthcheck1.timesFailed, equalTo(0))
     }
 }

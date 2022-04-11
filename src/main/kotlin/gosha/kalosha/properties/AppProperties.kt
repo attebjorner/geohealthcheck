@@ -65,6 +65,7 @@ data class ClientServices(
 
 interface Service {
     val endpoint: String
+    val failureThreshold: Int
     var timesFailed: Int
 }
 
@@ -72,7 +73,7 @@ interface Service {
 data class ClientService(
     override val endpoint: String,
     @SerialName("failure-threshold")
-    val failureThreshold: Int = 1,
+    override val failureThreshold: Int = 1,
     val delay: Long = 0,
     @Transient
     override var timesFailed: Int = 0
@@ -82,7 +83,7 @@ data class ClientService(
 data class GeoHealthcheck(
     override val endpoint: String,
     @SerialName("failure-threshold")
-    val failureThreshold: Int = 1,
+    override val failureThreshold: Int = 1,
     @Transient
     override var timesFailed: Int = 0
 ) : Service

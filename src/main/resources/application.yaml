@@ -6,7 +6,7 @@ schedule:
   delay: 2000
 client-services:
   service-list:
-    - endpoint: http://yandex.ru/
+    - endpoint: http://yandex.ru/abc
       delay: 2000
       failure-threshold: 3
     - endpoint: http://google.ru/
@@ -14,5 +14,5 @@ client-services:
       failure-threshold: 3
 
 geo-healthcheck-list:
-  - endpoint: http://mail.ru/
+  - endpoint: http://yandex.ru/abc
     failure-threshold: 3
