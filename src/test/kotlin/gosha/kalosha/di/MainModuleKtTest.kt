@@ -21,7 +21,7 @@ internal class MainModuleKtTest : AutoCloseKoinTest() {
     fun `should load modules`() {
         val namespace = "testnamespace"
         startKoin {
-            modules(mainModule(namespace, false, "application.yaml"))
+            modules(mainModule(namespace, false, this::class.java.classLoader.getResource("application.yaml")!!.path))
         }
 
         val properties by inject<AppProperties>()

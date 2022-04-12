@@ -35,5 +35,5 @@ class ClientServiceMonitor(
         return service.timesFailed < service.failureThreshold
     }
 
-    private fun getTaskName(service: ClientService) = "${CLIENT_SERVICES_TASK}_${service.endpoint}"
+    private fun getTaskName(service: ClientService) = "${CLIENT_SERVICES_TASK}_${service.name}"
 }

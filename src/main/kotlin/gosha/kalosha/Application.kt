@@ -1,16 +1,14 @@
 package gosha.kalosha
 
 import gosha.kalosha.config.*
-import io.ktor.application.*
+import io.ktor.server.cio.*
+import io.ktor.server.engine.*
 
-fun main(args: Array<String>): Unit =
-    io.ktor.server.netty.EngineMain.main(args)
-
-@Suppress("unused")
-fun Application.module() {
-    configureDI()
-    configureRouting()
-    configureSerialization()
-    configureLogging()
-    scheduleMonitoring()
+fun main(args: Array<String>) {
+    embeddedServer(
+        factory = CIO,
+        environment = commandLineEnvironment(args).apply {
+            application.configure()
+        }
+    ).start(wait = true)
 }

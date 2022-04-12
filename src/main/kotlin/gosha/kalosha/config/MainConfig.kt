@@ -20,6 +20,14 @@ private const val BACKWARD_COMPATIBILITY_PROPERTY = "healthcheck.backward-compat
 
 private const val CONFIG_PROPERTY = "healthcheck.config"
 
+fun Application.configure() {
+    configureDI()
+    configureRouting()
+    configureSerialization()
+    configureLogging()
+    scheduleMonitoring()
+}
+
 fun Application.configureRouting() {
     routing {
         configureRouting()
@@ -35,7 +43,8 @@ fun Application.configureSerialization() {
 fun Application.configureDI() {
     val namespace = environment.config.propertyOrNull(POD_NAMESPACE_PROPERTY)?.getString() ?: ""
     val backwardCompatibility = environment.config.propertyOrNull(BACKWARD_COMPATIBILITY_PROPERTY)?.getString().toBoolean()
-    val configName = environment.config.propertyOrNull(CONFIG_PROPERTY)?.getString() ?: ""
+    val configName = environment.config.propertyOrNull(CONFIG_PROPERTY)?.getString()
+    log.info(configName)
 
     install(Koin) {
         SLF4JLogger()

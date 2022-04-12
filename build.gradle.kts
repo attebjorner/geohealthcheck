@@ -19,7 +19,7 @@ plugins {
 group = "gosha.kalosha"
 version = "0.0.1"
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("gosha.kalosha.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -36,7 +36,7 @@ dependencies {
 
     // server
     implementation("io.ktor:ktor-server-core:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-cio:$ktor_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 
     // serialization
@@ -67,4 +67,23 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks {
+    "build" {
+        dependsOn(fatJar)
+    }
+}
+
+val fatJar = tasks.create("fatJar", Jar::class) {
+    group = "my tasks"
+    description = "Creates a self-contained fat JAR of the application that can be run."
+    manifest.attributes["Main-Class"] = "gosha.kalosha.ApplicationKt"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    val dependencies = configurations
+        .runtimeClasspath
+        .get()
+        .map(::zipTree)
+    from(dependencies)
+    with(tasks.jar.get())
 }

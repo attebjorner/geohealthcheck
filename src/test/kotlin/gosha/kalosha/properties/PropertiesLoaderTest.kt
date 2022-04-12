@@ -10,7 +10,7 @@ internal class PropertiesLoaderTest {
 
     @Test
     fun `should parse new properties when backwardCompatibility is false`() {
-        val propertiesLoader = PropertiesLoader(false, "new_application.yaml")
+        val propertiesLoader = PropertiesLoader(false, this::class.java.classLoader.getResource("new_application.yaml")!!.path)
         val properties = propertiesLoader.load()
         properties.clientServices.services.forEach {
             assertThat(Url(it.endpoint).host, startsWith("new"))
@@ -22,7 +22,7 @@ internal class PropertiesLoaderTest {
 
     @Test
     fun `should parse old properties when backwardCompatibility is true`() {
-        val propertiesLoader = PropertiesLoader(true, "old_application.yaml")
+        val propertiesLoader = PropertiesLoader(true, this::class.java.classLoader.getResource("old_application.yaml")!!.path)
         val properties = propertiesLoader.load()
         properties.clientServices.services.forEach {
             assertThat(Url(it.endpoint).host, startsWith("old"))
@@ -34,7 +34,7 @@ internal class PropertiesLoaderTest {
 
     @Test
     fun `should fail when cannot parse`() {
-        val propertiesLoader = PropertiesLoader(true, "new_application.yaml")
+        val propertiesLoader = PropertiesLoader(true, this::class.java.classLoader.getResource("new_application.yaml")!!.path)
         assertFails { propertiesLoader.load() }
     }
 }

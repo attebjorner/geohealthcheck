@@ -18,7 +18,7 @@ class AppStatusMonitor(
         combine(clientServiceFlow, geoHealthcheckFlow) { areServicesOk, areGeoHealthchecksOk ->
             areServicesOk to areGeoHealthchecksOk
         }.collectLatest { (areServicesOk, areGeoHealthchecksOk) ->
-            logger.info { "collecting $areServicesOk $areGeoHealthchecksOk" } //todo remove this
+            logger.debug { "collecting $areServicesOk $areGeoHealthchecksOk" } //todo remove this
             appStatus.isOk.set(areServicesOk || !areGeoHealthchecksOk)
         }
     }

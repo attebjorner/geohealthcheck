@@ -15,7 +15,7 @@ import org.koin.dsl.onClose
 fun mainModule(
     namespace: String,
     backwardCompatibility: Boolean,
-    configName: String
+    configName: String?
 ) = module {
     single { PropertiesLoader(backwardCompatibility, configName).load() }
     single { HttpClient(CIO) }
