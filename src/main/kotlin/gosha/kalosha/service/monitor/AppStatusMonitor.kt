@@ -18,8 +18,11 @@ class AppStatusMonitor(
         combine(clientServiceFlow, geoHealthcheckFlow) { areServicesOk, areGeoHealthchecksOk ->
             areServicesOk to areGeoHealthchecksOk
         }.collectLatest { (areServicesOk, areGeoHealthchecksOk) ->
-            logger.debug { "collecting $areServicesOk $areGeoHealthchecksOk" } //todo remove this
+            logger.debug { "Client services are${serviceStatusToLog(areServicesOk)}up, geoHealthchecks are${serviceStatusToLog(areGeoHealthchecksOk)}up" }
             appStatus.isOk.set(areServicesOk || !areGeoHealthchecksOk)
         }
     }
 }
+
+private fun serviceStatusToLog(status: Boolean): String =
+    " not ".takeIf { !status } ?: " "

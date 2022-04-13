@@ -69,6 +69,8 @@ interface Service {
     val failureThreshold: Int
     var timesFailed: Int
     val name: String
+
+    val isUp: Boolean get() = timesFailed < failureThreshold
 }
 
 @Serializable

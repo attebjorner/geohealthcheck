@@ -40,9 +40,9 @@ class HealthRoutingTest : AutoCloseKoinTest() {
     }
 
     private val applicationConfig: Application.() -> Unit = {
+        configureTestDI()
         configureRouting()
         configureSerialization()
-        configureTestDI()
         configureLogging()
     }
 

@@ -44,7 +44,6 @@ fun Application.configureDI() {
     val namespace = environment.config.propertyOrNull(POD_NAMESPACE_PROPERTY)?.getString() ?: ""
     val backwardCompatibility = environment.config.propertyOrNull(BACKWARD_COMPATIBILITY_PROPERTY)?.getString().toBoolean()
     val configName = environment.config.propertyOrNull(CONFIG_PROPERTY)?.getString()
-    log.info(configName)
 
     install(Koin) {
         SLF4JLogger()

@@ -1,3 +1,5 @@
+### файл yaml-конфига указывается `-P:healthcheck.config=app.yaml`
+### файл hocon-конфига приложения указывается `-config=app.conf`, модуль в нем *не* указывать
 ### режим совместимости `-P:healthcheck.backward-compatibility=true`
 
 ### майлстоуны

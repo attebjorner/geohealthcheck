@@ -86,7 +86,7 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
                 .collectLatest { assertThat(it, equalTo(true)) }
         }
         mutex.lock()
-        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testService1.endpoint}").shutdown()
+        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testService1.name}").shutdown()
         mutex.unlock()
     }
 
@@ -101,7 +101,7 @@ internal class ClientServiceMonitorTest : AutoCloseKoinTest() {
                 .collectLatest { assertThat(it, equalTo(false)) }
         }
         mutex.lock()
-        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testService2.endpoint}").shutdown()
+        scheduler.findTask("${CLIENT_SERVICES_TASK}_${testService2.name}").shutdown()
         mutex.unlock()
     }
 }

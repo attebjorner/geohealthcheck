@@ -4,9 +4,13 @@ import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.properties.ClientService
 import gosha.kalosha.service.RequestService
 import gosha.kalosha.service.schedule.Scheduler
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combineTransform
+import kotlinx.coroutines.flow.flow
 
 const val CLIENT_SERVICES_TASK = "client_services_status"
+
+private fun getTaskName(service: ClientService) = "${CLIENT_SERVICES_TASK}_${service.name}"
 
 class ClientServiceMonitor(
     properties: AppProperties,
@@ -25,15 +29,9 @@ class ClientServiceMonitor(
         services.map { service ->
             flow {
                 scheduler.createTask(getTaskName(service), service.delay) {
-                    emit(isStatusUp(service))
+                    requestService.updateStatus(service)
+                    emit(service.isUp)
                 }.start()
             }
         }
-
-    private suspend fun isStatusUp(service: ClientService): Boolean {
-        requestService.updateStatus(service)
-        return service.timesFailed < service.failureThreshold
-    }
-
-    private fun getTaskName(service: ClientService) = "${CLIENT_SERVICES_TASK}_${service.name}"
 }

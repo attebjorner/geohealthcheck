@@ -7,6 +7,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class ResponseDto(
@@ -14,7 +15,11 @@ data class ResponseDto(
     @Serializable(with = HttpStatusCodeSerializer::class)
     val code: HttpStatusCode,
     val namespace: String
-)
+) {
+    // для грааля
+    fun toJson(): String =
+        Json.encodeToString(serializer(), this)
+}
 
 @Serializable
 enum class ResponseStatus {
