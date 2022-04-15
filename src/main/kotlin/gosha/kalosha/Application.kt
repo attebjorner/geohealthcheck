@@ -5,10 +5,13 @@ import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 
 fun main(args: Array<String>) {
-    embeddedServer(
-        factory = CIO,
-        environment = commandLineEnvironment(args).apply {
-            application.configure()
-        }
-    ).start(wait = true)
+    val environment = commandLineEnvironment(args).apply {
+        application.configure()
+    }
+    CIOApplicationEngine(environment) {
+        loadCommonConfiguration(environment.config)
+    }.apply {
+        addShutdownHook { stop(3000, 5000) }
+        start(wait = true)
+    }
 }
