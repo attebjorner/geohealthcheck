@@ -1,14 +1,13 @@
 package gosha.kalosha.properties
 
 import io.ktor.http.*
-import kotlinx.coroutines.delay
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class OldAppProperties(
     val logging: Logging,
-    val schedule: Schedule,
+    val schedule: OldSchedule,
     @SerialName("client-services")
     val clientServices: OldClientServices,
     @SerialName("failure-threshold")
@@ -17,8 +16,8 @@ data class OldAppProperties(
     val geoHealthcheck: OldGeoHealthcheck
 ) {
     fun toProperties(): AppProperties {
-        val clientServices = clientServices.services.map {
-            ClientService(
+        val services = clientServices.services.map {
+            Service(
                 endpoint = URLBuilder(
                     protocol = URLProtocol.HTTP,
                     host = it.serviceName,
@@ -29,23 +28,30 @@ data class OldAppProperties(
                 delay = schedule.delay
             )
         }.toSet()
-        val geoHealthcheck = GeoHealthcheck(
+        val geoHealthcheck = Service(
             endpoint = URLBuilder(
                 protocol = URLProtocol.HTTP,
                 host = geoHealthcheck.serviceName,
                 port = geoHealthcheck.port,
                 encodedPath = "health"
             ).buildString(),
-            failureThreshold = failureThreshold
+            failureThreshold = failureThreshold,
+            delay = schedule.delay
         )
         return AppProperties(
             logging,
-            schedule,
-            ClientServices(clientServices),
+            Schedule(schedule.enabled),
+            ClientServices(services),
             listOf(geoHealthcheck)
         )
     }
 }
+
+@Serializable
+data class OldSchedule(
+    val enabled: Boolean,
+    val delay: Long // in ms
+)
 
 @Serializable
 data class OldClientServices(

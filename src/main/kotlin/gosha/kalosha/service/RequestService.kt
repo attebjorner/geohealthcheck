@@ -14,9 +14,9 @@ class RequestService(
 
     suspend fun updateStatus(service: Service) {
         if (!isStatusUp(service)) {
-            ++service.timesFailed
-        } else if (service.timesFailed >= service.failureThreshold) {
-            service.timesFailed = 0
+            service.countFail()
+        } else if (!service.isUp) {
+            service.resetFails()
         }
     }
 

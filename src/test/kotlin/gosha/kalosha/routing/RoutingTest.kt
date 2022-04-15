@@ -19,13 +19,13 @@ class HealthRoutingTest : AutoCloseKoinTest() {
 
     private val appStatus = AppStatus(TEST_NAMESPACE)
 
-    private val testService = ClientService("serviceName")
+    private val testService = Service("serviceName")
 
     private val testProperties = AppProperties(
         Logging(Level(LoggingLevel.INFO)),
-        Schedule(true, 0),
+        Schedule(true),
         ClientServices(setOf(testService)),
-        listOf(GeoHealthcheck("serviceName", 80))
+        listOf(Service("serviceName", 80))
     )
 
     private fun Application.configureTestDI() {

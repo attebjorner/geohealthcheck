@@ -13,7 +13,7 @@ internal class OldAppPropertiesTest {
         val geoHealthcheckUrl = URLBuilder(URLProtocol.HTTP, host = "geoHealthcheck", port = 81, encodedPath = "health")
         val oldProperties = OldAppProperties(
             Logging(Level(LoggingLevel.DEBUG)),
-            Schedule(true, 100),
+            OldSchedule(true, 100),
             OldClientServices(
                 listOf(
                     OldService(
@@ -29,7 +29,7 @@ internal class OldAppPropertiesTest {
         val properties = oldProperties.toProperties()
 
         assertThat(properties.logging, equalTo(oldProperties.logging))
-        assertThat(properties.schedule, equalTo(oldProperties.schedule))
+        assertThat(properties.schedule.enabled, equalTo(oldProperties.schedule.enabled))
         assertThat(properties.clientServices.services.size, equalTo(1))
         properties.clientServices.services.forEach {
             assertThat(it.endpoint, equalTo(serviceUrl.buildString()))
@@ -39,6 +39,7 @@ internal class OldAppPropertiesTest {
         assertThat(properties.geoHealthchecks.size, equalTo(1))
         properties.geoHealthchecks.forEach {
             assertThat(it.endpoint, equalTo(geoHealthcheckUrl.buildString()))
+            assertThat(it.delay, equalTo(oldProperties.schedule.delay))
             assertThat(it.failureThreshold, equalTo(oldProperties.failureThreshold))
         }
     }

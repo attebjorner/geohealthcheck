@@ -1,6 +1,6 @@
 package gosha.kalosha.service
 
-import gosha.kalosha.properties.GeoHealthcheck
+import gosha.kalosha.properties.Service
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -17,9 +17,9 @@ import org.koin.test.inject
 
 internal class RequestServiceTest : AutoCloseKoinTest() {
 
-    private val testHealthcheck1 = GeoHealthcheck(URLBuilder(host = "service1").buildString())
+    private val testHealthcheck1 = Service(URLBuilder(host = "service1").buildString())
 
-    private val testHealthcheck2 = GeoHealthcheck(URLBuilder(host = "service2").buildString())
+    private val testHealthcheck2 = Service(URLBuilder(host = "service2").buildString())
 
     private val client = HttpClient(MockEngine) {
         engine {

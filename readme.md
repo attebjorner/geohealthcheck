@@ -47,7 +47,6 @@ logging:
     root: INFO
 schedule:
   enabled: "true"
-  delay: 2000
 client-services:
   service-list:
     - endpoint: "http://new_s1:80/abc"
@@ -61,8 +60,10 @@ client-services:
 geo-healthcheck-list:
   - endpoint: "http://new_geo1:80/abc"
     failure-threshold: 3
+    delay: 3000
   - endpoint: "http://new_geo1:80/abc"
     failure-threshold: 2
+    delay: 2000
 ```
 
 

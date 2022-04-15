@@ -18,7 +18,7 @@ class Scheduler {
     private val tasks = ConcurrentHashMap<String, Task>()
 
     fun createTask(name: String, delay: Long, block: suspend () -> Unit): Task {
-        if (tasks.contains(name)) {
+        if (tasks.containsKey(name)) {
             throw RuntimeException("Task with name $name already exists")
         }
         val task = TaskImpl(name, delay, block)
@@ -31,6 +31,7 @@ class Scheduler {
         for (task in tasks.values) {
             task.shutdown()
         }
+        tasks.clear()
     }
 
     fun findTask(name: String): Task =

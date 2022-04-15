@@ -23,7 +23,7 @@ internal class MainConfigKtTest : AutoCloseKoinTest() {
                 module {
                     single { AppProperties(
                         Logging(Level(LoggingLevel.INFO)),
-                        Schedule(enabled, 1),
+                        Schedule(enabled),
                         ClientServices(setOf()),
                         listOf()
                     ) }

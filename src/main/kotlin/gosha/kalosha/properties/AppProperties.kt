@@ -13,7 +13,7 @@ data class AppProperties(
     @SerialName("client-services")
     val clientServices: ClientServices,
     @SerialName("geo-healthcheck-list")
-    var geoHealthchecks: Collection<GeoHealthcheck> = setOf(),
+    var geoHealthchecks: Collection<Service> = setOf(),
 ) {
     init {
         val clientServiceSet = clientServices.services.toSet()
@@ -54,46 +54,37 @@ enum class LoggingLevel {
 
 @Serializable
 data class Schedule(
-    val enabled: Boolean,
-    val delay: Long // in ms
+    val enabled: Boolean
 )
 
 @Serializable
 data class ClientServices(
     @SerialName("service-list")
-    var services: Collection<ClientService> = setOf()
+    var services: Collection<Service> = setOf()
 )
 
-interface Service {
-    val endpoint: String
-    val failureThreshold: Int
-    var timesFailed: Int
-    val name: String
+@Serializable
+data class Service(
+    val endpoint: String,
+    @SerialName("failure-threshold")
+    val failureThreshold: Int = 1,
+    val delay: Long = 0
+) {
+    @Transient
+    var timesFailed: Int = 0
+
+    @Transient
+    val name: String = Url(endpoint).host
 
     val isUp: Boolean get() = timesFailed < failureThreshold
-}
 
-@Serializable
-data class ClientService(
-    override val endpoint: String,
-    @SerialName("failure-threshold")
-    override val failureThreshold: Int = 1,
-    val delay: Long = 0,
-    @Transient
-    override var timesFailed: Int = 0
-) : Service {
-    override val name: String = Url(endpoint).host
-}
+    fun resetFails() {
+        timesFailed = 0
+    }
 
-@Serializable
-data class GeoHealthcheck(
-    override val endpoint: String,
-    @SerialName("failure-threshold")
-    override val failureThreshold: Int = 1,
-    @Transient
-    override var timesFailed: Int = 0
-) : Service {
-    override val name: String = Url(endpoint).host
+    fun countFail() {
+        ++timesFailed
+    }
 }
 
 data class AppStatus(

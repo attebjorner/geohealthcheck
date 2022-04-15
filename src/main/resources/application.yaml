@@ -3,10 +3,9 @@ logging:
     root: INFO
 schedule:
   enabled: true
-  delay: 2000
 client-services:
   service-list:
-    - endpoint: http://yandex.ru/abc
+    - endpoint: http://yandex.ru/
       delay: 2000
       failure-threshold: 3
     - endpoint: http://google.ru/
@@ -14,5 +13,9 @@ client-services:
       failure-threshold: 3
 
 geo-healthcheck-list:
-  - endpoint: http://yandex.ru/abc
+  - endpoint: http://yandex.ru/
+    delay: 3000
     failure-threshold: 3
+  - endpoint: http://google.ru/abc
+    delay: 3000
+    failure-threshold: 2
