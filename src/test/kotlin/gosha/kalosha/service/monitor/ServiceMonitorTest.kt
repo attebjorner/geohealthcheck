@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -26,8 +25,6 @@ import kotlin.properties.Delegates.observable
 
 internal class ServiceMonitorTest : AutoCloseKoinTest() {
 
-    private val mutex = Mutex()
-
     private val failureThreshold = 2
 
     private val delay = 1L
@@ -35,8 +32,8 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
     private var numOfRequestsToWait = 0
 
     private var numberOfRequests by observable(0) { _, _, newValue ->
-        if (newValue == numOfRequestsToWait && mutex.isLocked) {
-            mutex.unlock()
+        if (newValue == numOfRequestsToWait) {
+            scheduler.shutdownAll()
         }
     }
 
@@ -93,22 +90,17 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
     }
 
     @Test
-    fun `should emit true when checker returns OK`() = runBlocking {
-        mutex.lock()
+    fun `should emit true when checker returns OK`(): Unit = runBlocking {
         testProperties.clientServices.services = listOf(upService1)
         startKoin()
         launch {
             serviceMonitor.checkClientServices()
                 .collectLatest { assertThat(it, equalTo(true)) }
         }
-        mutex.lock()
-        scheduler.findTask("${SERVICES_TASK}_${upService1.name}").shutdown()
-        mutex.unlock()
     }
 
     @Test
-    fun `should emit false when checker returns not OK`() = runBlocking {
-        mutex.lock()
+    fun `should emit false when checker returns not OK`(): Unit = runBlocking {
         testProperties.clientServices.services = listOf(downService1)
         startKoin()
         launch {
@@ -116,14 +108,10 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
                 .drop(failureThreshold)
                 .collectLatest { assertThat(it, equalTo(false)) }
         }
-        mutex.lock()
-        scheduler.findTask("${SERVICES_TASK}_${downService1.name}").shutdown()
-        mutex.unlock()
     }
 
     @Test
-    fun `should emit true when all services are up`() = runBlocking {
-        mutex.lock()
+    fun `should emit true when all services are up`(): Unit = runBlocking {
         testProperties.clientServices.services = listOf(upService1, upService2)
         startKoin()
         numOfRequestsToWait = testProperties.clientServices.services.size
@@ -131,14 +119,10 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
             serviceMonitor.checkClientServices()
                 .collectLatest { assertThat(it, equalTo(true)) }
         }
-        mutex.lock()
-        scheduler.shutdownAll()
-        mutex.unlock()
     }
 
     @Test
-    fun `should emit false when any service is down`() = runBlocking {
-        mutex.lock()
+    fun `should emit false when any service is down`(): Unit = runBlocking {
         testProperties.clientServices.services = listOf(upService1, upService2, downService1)
         startKoin()
         numOfRequestsToWait = testProperties.clientServices.services.sumOf { it.failureThreshold }
@@ -147,14 +131,10 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
                 .drop(numOfRequestsToWait)
                 .collectLatest { assertThat(it, equalTo(false)) }
         }
-        mutex.lock()
-        scheduler.shutdownAll()
-        mutex.unlock()
     }
 
     @Test
-    fun `should emit true when at least one geohealthcheck is OK`() = runBlocking {
-        mutex.lock()
+    fun `should emit true when at least one geohealthcheck is OK`(): Unit = runBlocking {
         testProperties.geoHealthchecks = listOf(upHealthcheck1, downHealthcheck1, downHealthcheck2)
         startKoin()
         numOfRequestsToWait = testProperties.geoHealthchecks.size
@@ -162,14 +142,10 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
             serviceMonitor.checkGeoHealthchecks()
                 .collectLatest { assertThat(it, equalTo(true)) }
         }
-        mutex.lock()
-        scheduler.shutdownAll()
-        mutex.unlock()
     }
 
     @Test
-    fun `should emit false when all geohealthchecks are not OK`() = runBlocking {
-        mutex.lock()
+    fun `should emit false when all geohealthchecks are not OK`(): Unit = runBlocking {
         testProperties.geoHealthchecks = listOf(downHealthcheck2, downHealthcheck1)
         startKoin()
         numOfRequestsToWait = testProperties.geoHealthchecks.sumOf { it.failureThreshold }
@@ -178,8 +154,5 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
                 .drop(numOfRequestsToWait)
                 .collectLatest { assertThat(it, equalTo(false)) }
         }
-        mutex.lock()
-        scheduler.shutdownAll()
-        mutex.unlock()
     }
 }
