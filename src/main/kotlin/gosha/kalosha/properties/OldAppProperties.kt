@@ -6,7 +6,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OldAppProperties(
+    @SerialName("logging")
     val logging: Logging,
+    @SerialName("schedule")
     val schedule: OldSchedule,
     @SerialName("client-services")
     val clientServices: OldClientServices,
@@ -49,7 +51,9 @@ data class OldAppProperties(
 
 @Serializable
 data class OldSchedule(
+    @SerialName("enabled")
     val enabled: Boolean,
+    @SerialName("delay")
     val delay: Long // in ms
 )
 
@@ -63,7 +67,9 @@ data class OldClientServices(
 data class OldService(
     @SerialName("service-name")
     val serviceName: String,
+    @SerialName("port")
     val port: Int,
+    @SerialName("path")
     val path: String,
 )
 
@@ -71,5 +77,6 @@ data class OldService(
 data class OldGeoHealthcheck(
     @SerialName("service-name")
     val serviceName: String,
+    @SerialName("port")
     val port: Int
 )

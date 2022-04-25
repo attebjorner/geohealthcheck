@@ -4,11 +4,14 @@ import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import org.slf4j.event.Level
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Serializable
 data class AppProperties(
+    @SerialName("logging")
     val logging: Logging,
+    @SerialName("schedule")
     val schedule: Schedule,
     @SerialName("client-services")
     val clientServices: ClientServices,
@@ -16,26 +19,28 @@ data class AppProperties(
     var geoHealthchecks: Collection<Service> = setOf(),
 ) {
     init {
-        val clientServiceSet = clientServices.services.toSet()
-        if (clientServiceSet.size != clientServices.services.size) {
-            throw RuntimeException("serviceList contains duplicates")
-        }
-        clientServices.services = clientServiceSet
-        val geoHealthcheckSet = geoHealthchecks.toSet()
-        if (geoHealthcheckSet.size != geoHealthchecks.size) {
-            throw RuntimeException("geoHealthcheckList contains duplicates")
-        }
-        geoHealthchecks = geoHealthcheckSet
+        clientServices.services = toSet(clientServices.services)
+        geoHealthchecks = toSet(geoHealthchecks)
     }
 }
 
+private fun toSet(services: Collection<Service>): Set<Service> =
+    services.toSet().also {
+        if (it.size != services.size) {
+            throw RuntimeException("Either service-list or geoHealthcheck-list contains duplicates")
+        }
+    }
+
+
 @Serializable
 data class Logging(
+    @SerialName("level")
     val level: Level
 )
 
 @Serializable
 data class Level(
+    @SerialName("root")
     val root: LoggingLevel
 )
 
@@ -54,6 +59,7 @@ enum class LoggingLevel {
 
 @Serializable
 data class Schedule(
+    @SerialName("enabled")
     val enabled: Boolean
 )
 
@@ -65,9 +71,11 @@ data class ClientServices(
 
 @Serializable
 data class Service(
+    @SerialName("endpoint")
     val endpoint: String,
     @SerialName("failure-threshold")
     val failureThreshold: Int = 1,
+    @SerialName("delay")
     val delay: Long = 0
 ) {
     @Transient

@@ -11,9 +11,12 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class ResponseDto(
+    @SerialName("status")
     val status: ResponseStatus,
     @Serializable(with = HttpStatusCodeSerializer::class)
+    @SerialName("code")
     val code: HttpStatusCode,
+    @SerialName("namespace")
     val namespace: String
 ) {
     // для грааля
