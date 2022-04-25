@@ -20,7 +20,7 @@ fun mainModule(
     single { HttpClient(CIO) }
     single { AppStatus(namespace) }
     single { RequestService(get()) }
-    single { ServiceMonitor(get(), get(), get()) }
+    single { ServiceMonitor(get(), get()) }
     single { Scheduler() }.onClose { it?.shutdownAll() }
-    single { AppStatusMonitor(get(), get()) }
+    single { AppStatusMonitor(get(), get(), get()) }
 }
