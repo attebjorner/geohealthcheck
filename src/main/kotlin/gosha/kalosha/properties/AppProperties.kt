@@ -89,6 +89,8 @@ data class Service(
     }
 
     fun countFail() {
-        ++timesFailed
+        if (isUp) {
+            ++timesFailed
+        }
     }
 }
