@@ -1,11 +1,14 @@
 package gosha.kalosha.service.schedule
 
+import gosha.kalosha.exception.SchedulerException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import kotlin.properties.Delegates.observable
 
 
@@ -58,5 +61,13 @@ internal class SchedulerTest {
             assertThat(task.isActive, equalTo(false))
         }
         mutex.unlock()
+    }
+
+    @Test
+    fun `should throw exception when task with the name already exists`() {
+        val name = "name"
+        val scheduler = Scheduler()
+        assertDoesNotThrow { scheduler.createTask(name, 1L) {} }
+        assertThrows<SchedulerException> { scheduler.createTask(name, 1L) {} }
     }
 }

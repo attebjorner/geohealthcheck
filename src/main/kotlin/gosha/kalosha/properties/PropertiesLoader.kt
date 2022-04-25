@@ -1,6 +1,7 @@
 package gosha.kalosha.properties
 
 import com.charleskorn.kaml.Yaml
+import gosha.kalosha.exception.LoadPropertiesException
 import mu.KotlinLogging
 import java.io.File
 
@@ -23,8 +24,7 @@ class PropertiesLoader(
                 yamlParser.decodeFromString(AppProperties.serializer(), propertiesFile.readText())
             }
         } catch (ex: Exception) {
-            logger.error { "Could not parse properties" }
-            throw ex
+            throw LoadPropertiesException("Could not parse properties", ex)
         }
     }
 }

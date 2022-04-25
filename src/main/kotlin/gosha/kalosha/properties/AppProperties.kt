@@ -1,5 +1,6 @@
 package gosha.kalosha.properties
 
+import gosha.kalosha.exception.DublicateServiceException
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -25,7 +26,7 @@ data class AppProperties(
 private fun toSet(services: Collection<Service>): Set<Service> =
     services.toSet().also {
         if (it.size != services.size) {
-            throw RuntimeException("Either service-list or geoHealthcheck-list contains duplicates")
+            throw DublicateServiceException("Either service-list or geoHealthcheck-list contains duplicates")
         }
     }
 

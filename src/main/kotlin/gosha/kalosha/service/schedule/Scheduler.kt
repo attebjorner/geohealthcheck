@@ -1,5 +1,6 @@
 package gosha.kalosha.service.schedule
 
+import gosha.kalosha.exception.SchedulerException
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
 import java.util.concurrent.ConcurrentHashMap
@@ -19,7 +20,7 @@ class Scheduler {
 
     fun createTask(name: String, delay: Long, block: suspend () -> Unit): Task {
         if (tasks.containsKey(name)) {
-            throw RuntimeException("Task with name $name already exists")
+            throw SchedulerException("Task with name $name already exists")
         }
         val task = TaskImpl(name, delay, block)
         tasks[name] = task
@@ -33,9 +34,6 @@ class Scheduler {
         }
         tasks.clear()
     }
-
-    fun findTask(name: String): Task =
-        tasks[name] ?: throw RuntimeException("Task with name $name doesn't exist")
 }
 
 private class TaskImpl(

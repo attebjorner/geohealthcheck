@@ -1,5 +1,6 @@
 package gosha.kalosha.properties
 
+import gosha.kalosha.exception.DublicateServiceException
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ internal class AppPropertiesTest {
 
     @Test
     fun `should throw exception when services contains duplicates`() {
-        assertThrows<RuntimeException> { AppProperties(
+        assertThrows<DublicateServiceException> { AppProperties(
             Logging(Level(LoggingLevel.DEBUG)),
             Schedule(true),
             ClientServices(listOf(Service("s1", 80), Service("s1", 80))),
@@ -27,7 +28,7 @@ internal class AppPropertiesTest {
 
     @Test
     fun `should throw exception when geoHealthchecks contains duplicates`() {
-        assertThrows<RuntimeException> { AppProperties(
+        assertThrows<DublicateServiceException> { AppProperties(
             Logging(Level(LoggingLevel.DEBUG)),
             Schedule(true),
             ClientServices(listOf(Service("s1", 80))),
