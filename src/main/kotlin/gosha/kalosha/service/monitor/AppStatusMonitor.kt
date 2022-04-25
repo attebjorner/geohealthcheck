@@ -1,7 +1,6 @@
 package gosha.kalosha.service.monitor
 
-import gosha.kalosha.properties.AppProperties
-import gosha.kalosha.properties.AppStatus
+import gosha.kalosha.entity.AppStatus
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import mu.KotlinLogging

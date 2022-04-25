@@ -1,14 +1,12 @@
 package gosha.kalosha.routing
 
-import gosha.kalosha.properties.AppStatus
 import gosha.kalosha.dto.ResponseDto
 import gosha.kalosha.dto.ResponseStatus
+import gosha.kalosha.entity.AppStatus
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 
 fun Routing.configureRouting() {

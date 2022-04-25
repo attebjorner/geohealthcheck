@@ -4,8 +4,6 @@ import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.slf4j.event.Level
-import java.util.concurrent.atomic.AtomicBoolean
 
 @Serializable
 data class AppProperties(
@@ -94,8 +92,3 @@ data class Service(
         ++timesFailed
     }
 }
-
-data class AppStatus(
-    val namespace: String,
-    val isOk: AtomicBoolean = AtomicBoolean(true)
-)

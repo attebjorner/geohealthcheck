@@ -1,6 +1,6 @@
 package gosha.kalosha.di
 
-import gosha.kalosha.properties.AppStatus
+import gosha.kalosha.entity.AppStatus
 import gosha.kalosha.properties.PropertiesLoader
 import gosha.kalosha.service.monitor.AppStatusMonitor
 import gosha.kalosha.service.monitor.ServiceMonitor

@@ -1,6 +1,6 @@
 package gosha.kalosha.service.monitor
 
-import gosha.kalosha.properties.*
+import gosha.kalosha.entity.AppStatus
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.junit5.MockKExtension

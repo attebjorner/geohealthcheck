@@ -1,6 +1,7 @@
 package gosha.kalosha.routing
 
 import gosha.kalosha.config.*
+import gosha.kalosha.entity.AppStatus
 import gosha.kalosha.properties.*
 import io.ktor.http.*
 import io.ktor.application.*

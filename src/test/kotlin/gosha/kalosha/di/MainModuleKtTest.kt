@@ -1,7 +1,7 @@
 package gosha.kalosha.di
 
 import gosha.kalosha.properties.AppProperties
-import gosha.kalosha.properties.AppStatus
+import gosha.kalosha.entity.AppStatus
 import gosha.kalosha.service.monitor.ServiceMonitor
 import gosha.kalosha.service.schedule.Scheduler
 import io.ktor.client.*
