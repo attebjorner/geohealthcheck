@@ -58,6 +58,9 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging:$kotlin_logging_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
+    // scheduling
+    implementation("dev.inmo:krontab:0.7.2")
+
     // test
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.hamcrest:hamcrest-all:$hamcrest_version")

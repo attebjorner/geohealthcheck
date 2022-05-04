@@ -1,8 +1,7 @@
 package gosha.kalosha.service.monitor
 
-import gosha.kalosha.properties.*
+import gosha.kalosha.properties.Service
 import gosha.kalosha.service.RequestService
-import gosha.kalosha.service.schedule.Scheduler
 import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.every
@@ -10,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
@@ -21,7 +21,6 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.junit5.AutoCloseKoinTest
-import kotlin.properties.Delegates.observable
 
 internal class ServiceMonitorTest : AutoCloseKoinTest() {
 
@@ -29,19 +28,9 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
 
     private val delay = 1L
 
-    private var numOfRequestsToWait = 0
-
-    private var numberOfRequests by observable(0) { _, _, newValue ->
-        if (newValue == numOfRequestsToWait) {
-            scheduler.shutdownAll()
-        }
-    }
-
     private val upService = spyk(Service(URLBuilder(host = "upService1").buildString(), failureThreshold, delay))
 
     private val downService = spyk(Service(URLBuilder(host = "downService1").buildString(), failureThreshold, delay))
-
-    private val scheduler = Scheduler()
 
     private val requestService: RequestService = mockk()
 
@@ -51,9 +40,8 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
         startKoin {
             modules(
                 module {
-                    single { scheduler }
                     single { requestService }
-                    single { ServiceMonitor(get(), get()) }
+                    single { ServiceMonitor(get()) }
                 }
             )
         }
@@ -62,10 +50,8 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
     @BeforeEach
     fun setUp() {
         coEvery { requestService.updateStatus(any()) } returns Unit
-        every { upService.isUp } answers { ++numberOfRequests; true }
-        every { downService.isUp } answers { ++numberOfRequests; false }
-        numberOfRequests = 0
-        numOfRequestsToWait = failureThreshold
+        every { upService.isUp } returns true
+        every { downService.isUp } returns false
         stopKoin()
     }
 
@@ -74,6 +60,7 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
         startKoin()
         launch {
             serviceMonitor.checkServices(listOf(upService)) { all { isUp -> isUp } }
+                .take(1)
                 .collectLatest { assertThat(it, equalTo(true)) }
         }
     }
@@ -84,6 +71,7 @@ internal class ServiceMonitorTest : AutoCloseKoinTest() {
         launch {
             serviceMonitor.checkServices(listOf(downService)) { all { isUp -> isUp } }
                 .drop(failureThreshold)
+                .take(1)
                 .collectLatest { assertThat(it, equalTo(false)) }
         }
     }

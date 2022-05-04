@@ -20,6 +20,7 @@ internal class AppStatusMonitorTest {
 
     private val appStatus = spyk(AppStatus("test"))
 
+    @Suppress("unused")
     private val properties = spyk(AppProperties(
         Logging(Level(LoggingLevel.INFO)),
         Schedule(true),

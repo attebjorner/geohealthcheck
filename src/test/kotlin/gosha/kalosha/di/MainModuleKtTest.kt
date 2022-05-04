@@ -3,7 +3,6 @@ package gosha.kalosha.di
 import gosha.kalosha.properties.AppProperties
 import gosha.kalosha.entity.AppStatus
 import gosha.kalosha.service.monitor.ServiceMonitor
-import gosha.kalosha.service.schedule.Scheduler
 import io.ktor.client.*
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
@@ -27,14 +26,12 @@ internal class MainModuleKtTest : AutoCloseKoinTest() {
         val client by inject<HttpClient>()
         val appStatus by inject<AppStatus>()
         val serviceMonitor by inject<ServiceMonitor>()
-        val scheduler by inject<Scheduler>()
 
         assertThat(properties, notNullValue())
         assertThat(client, notNullValue())
         assertThat(appStatus, notNullValue())
         assertThat(appStatus.namespace, equalTo(namespace))
         assertThat(serviceMonitor, notNullValue())
-        assertThat(scheduler, notNullValue())
         stopKoin()
     }
 }
